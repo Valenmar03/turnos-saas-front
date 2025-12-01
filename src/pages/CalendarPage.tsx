@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { CalendarDays, Plus } from "lucide-react";
+import { CalendarDays, Plus, X } from "lucide-react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -216,7 +216,6 @@ export default function CalendarPage() {
         </p>
       )}
 
-      {/* CALENDARIO */}
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-2 md:p-4">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -251,7 +250,7 @@ export default function CalendarPage() {
                 className="text-xs text-slate-400 hover:text-slate-200"
                 onClick={() => setOpenCreate(false)}
               >
-                Cerrar
+                <X/>
               </button>
             </div>
             <AppointmentForm

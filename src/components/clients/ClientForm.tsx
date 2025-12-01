@@ -1,74 +1,106 @@
-import { useState, type FormEvent } from "react";
+import { useForm } from "react-hook-form";
 import type { Client, ClientPayload } from "../../hooks/useClients";
 
 interface ClientFormProps {
   initialData?: Client;
-  onSubmit: (data: ClientPayload) => void;
+  onSubmit: (data: ClientPayload) => void | Promise<void>;
   loading?: boolean;
 }
 
-export function ClientForm({ initialData, onSubmit, loading }: ClientFormProps) {
-  const [name, setName] = useState(initialData?.name ?? "");
-  const [email, setEmail] = useState(initialData?.email ?? "");
-  const [phone, setPhone] = useState(initialData?.phone ?? "");
-  const [notes, setNotes] = useState(initialData?.notes ?? "");
+type ClientFormValues = {
+  name: string;
+  email?: string;
+  phone?: string;
+};
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit({
-      name,
-      email: email || undefined,
-      phone: phone || undefined,
-      notes: notes || undefined
-    });
+export function ClientForm({ initialData, onSubmit, loading }: ClientFormProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<ClientFormValues>({
+    defaultValues: {
+      name: initialData?.name ?? "",
+      email: initialData?.email ?? "",
+      phone: initialData?.phone ?? ""
+    }
+  });
+
+  const onValidSubmit = async (values: ClientFormValues) => {
+    const payload: ClientPayload = {
+      name: values.name.trim(),
+      email: values.email?.trim() || undefined,
+      phone: values.phone?.trim() || undefined
+    };
+
+    await onSubmit(payload);
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
+      {/* Nombre */}
+      <div className="space-y-1">
+        <label className="text-xs font-medium text-slate-300">Nombre</label>
+        <input
+          type="text"
+          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          {...register("name", {
+            required: "El nombre es obligatorio",
+            minLength: {
+              value: 2,
+              message: "Debe tener al menos 2 caracteres"
+            }
+          })}
+        />
+        {errors.name && (
+          <p className="text-[11px] text-red-400 mt-1">
+            {errors.name.message}
+          </p>
+        )}
+      </div>
+
+      {/* Email */}
       <div className="space-y-1">
         <label className="text-xs font-medium text-slate-300">
-          Nombre y apellido
+          Email (opcional)
+        </label>
+        <input
+          type="email"
+          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          {...register("email", {
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Email inválido"
+            }
+          })}
+        />
+        {errors.email && (
+          <p className="text-[11px] text-red-400 mt-1">
+            {errors.email.message}
+          </p>
+        )}
+      </div>
+
+      {/* Teléfono */}
+      <div className="space-y-1">
+        <label className="text-xs font-medium text-slate-300">
+          Teléfono (opcional)
         </label>
         <input
           type="text"
-          className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          required
+          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          {...register("phone", {
+            minLength: {
+              value: 6,
+              message: "Demasiado corto"
+            }
+          })}
         />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">Email</label>
-          <input
-            type="email"
-            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">Teléfono</label>
-          <input
-            type="text"
-            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
-          Notas (preferencias, recordatorios, etc.)
-        </label>
-        <textarea
-          rows={3}
-          className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-        />
+        {errors.phone && (
+          <p className="text-[11px] text-red-400 mt-1">
+            {errors.phone.message}
+          </p>
+        )}
       </div>
 
       <button

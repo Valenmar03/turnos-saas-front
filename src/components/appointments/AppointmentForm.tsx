@@ -1,4 +1,5 @@
-import { type FormEvent, useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import type { AppointmentPayload } from "../../hooks/useAppointments";
 import type { Service } from "../../hooks/useServices";
 import type { Professional } from "../../hooks/useProfessionals";
@@ -8,10 +9,18 @@ interface AppointmentFormProps {
   services: Service[];
   professionals: Professional[];
   clients: Client[];
-  onSubmit: (data: AppointmentPayload) => void;
+  onSubmit: (data: AppointmentPayload) => void | Promise<void>;
   loading?: boolean;
   initialStartLocal?: string;
 }
+
+type AppointmentFormValues = {
+  clientId: string;
+  professionalId: string;
+  serviceId: string;
+  startLocal: string;
+  notes?: string;
+};
 
 export function AppointmentForm({
   services,
@@ -21,43 +30,50 @@ export function AppointmentForm({
   loading,
   initialStartLocal
 }: AppointmentFormProps) {
-  const [serviceId, setServiceId] = useState("");
-  const [professionalId, setProfessionalId] = useState("");
-  const [clientId, setClientId] = useState("");
-  const [startLocal, setStartLocal] = useState(initialStartLocal ?? ""); // datetime-local
-  const [notes, setNotes] = useState(""); 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors }
+  } = useForm<AppointmentFormValues>({
+    defaultValues: {
+      clientId: "",
+      professionalId: "",
+      serviceId: "",
+      startLocal: initialStartLocal ?? "",
+      notes: ""
+    }
+  });
 
   useEffect(() => {
     if (initialStartLocal) {
-      setStartLocal(initialStartLocal);
+      setValue("startLocal", initialStartLocal);
     }
-  }, [initialStartLocal]);
+  }, [initialStartLocal, setValue]);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!serviceId || !professionalId || !clientId || !startLocal) return;
+  const onValidSubmit = async (values: AppointmentFormValues) => {
+    const startDate = new Date(values.startLocal);
 
-    const startISO = new Date(startLocal).toISOString();
+    const payload: AppointmentPayload = {
+      client: values.clientId,
+      professional: values.professionalId,
+      service: values.serviceId,
+      start: startDate.toISOString(),
+      notes: values.notes || undefined
+    };
 
-    onSubmit({
-      service: serviceId,
-      professional: professionalId,
-      client: clientId,
-      start: startISO,
-      notes: notes || undefined
-      // end lo puede calcular el back con duration del service si querés
-    });
+    await onSubmit(payload);
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
       <div className="space-y-1">
         <label className="text-xs font-medium text-slate-300">Cliente</label>
         <select
           className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-          value={clientId}
-          onChange={e => setClientId(e.target.value)}
-          required
+          {...register("clientId", {
+            required: "Seleccioná un cliente"
+          })}
         >
           <option value="">Seleccionar cliente...</option>
           {clients.map(c => (
@@ -66,16 +82,23 @@ export function AppointmentForm({
             </option>
           ))}
         </select>
+        {errors.clientId && (
+          <p className="text-[11px] text-red-400 mt-1">
+            {errors.clientId.message}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">Profesional</label>
+          <label className="text-xs font-medium text-slate-300">
+            Profesional
+          </label>
           <select
             className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            value={professionalId}
-            onChange={e => setProfessionalId(e.target.value)}
-            required
+            {...register("professionalId", {
+              required: "Seleccioná un profesional"
+            })}
           >
             <option value="">Seleccionar profesional...</option>
             {professionals.map(p => (
@@ -84,15 +107,20 @@ export function AppointmentForm({
               </option>
             ))}
           </select>
+          {errors.professionalId && (
+            <p className="text-[11px] text-red-400 mt-1">
+              {errors.professionalId.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-slate-300">Servicio</label>
           <select
             className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            value={serviceId}
-            onChange={e => setServiceId(e.target.value)}
-            required
+            {...register("serviceId", {
+              required: "Seleccioná un servicio"
+            })}
           >
             <option value="">Seleccionar servicio...</option>
             {services.map(s => (
@@ -101,6 +129,11 @@ export function AppointmentForm({
               </option>
             ))}
           </select>
+          {errors.serviceId && (
+            <p className="text-[11px] text-red-400 mt-1">
+              {errors.serviceId.message}
+            </p>
+          )}
         </div>
       </div>
 
@@ -111,10 +144,24 @@ export function AppointmentForm({
         <input
           type="datetime-local"
           className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-          value={startLocal}
-          onChange={e => setStartLocal(e.target.value)}
-          required
+          {...register("startLocal", {
+            required: "Seleccioná fecha y hora",
+            validate: value => {
+              const d = new Date(value);
+              if (isNaN(d.getTime())) return "Fecha/hora inválidas";
+              const now = new Date();
+              if (d.getTime() < now.getTime() - 5 * 60 * 1000) {
+                return "El turno no puede ser en el pasado";
+              }
+              return true;
+            }
+          })}
         />
+        {errors.startLocal && (
+          <p className="text-[11px] text-red-400 mt-1">
+            {errors.startLocal.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1">
@@ -122,9 +169,7 @@ export function AppointmentForm({
         <textarea
           rows={2}
           className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-          placeholder="Ej: prefiere tal profesional, recordarle tal cosa..."
+          {...register("notes")}
         />
       </div>
 

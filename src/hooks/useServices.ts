@@ -19,7 +19,7 @@ export interface ServicePayload {
   name: string;
   description?: string;
   durationMinutes: number;
-  price: number;
+  price?: number;
   category?: string;
   color?: string;
   allowOverlap?: boolean;

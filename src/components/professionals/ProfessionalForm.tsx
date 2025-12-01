@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { Professional, ProfessionalPayload, WorkingHour, TimeOff  } from "../../hooks/useProfessionals";
 import type { Service } from "../../hooks/useServices";
+import { useForm } from "react-hook-form";
 
 
 interface ProfessionalFormProps {
@@ -10,6 +11,14 @@ interface ProfessionalFormProps {
   loading?: boolean;
 }
 
+type ProfessionalFormValues = {
+  name: string;
+  email?: string;
+  phone?: string;
+  color: string;
+  allowOverlap: boolean;
+};
+
 
 
 export function ProfessionalForm({
@@ -18,11 +27,6 @@ export function ProfessionalForm({
   onSubmit,
   loading
 }: ProfessionalFormProps) {
-  const [name, setName] = useState(initialData?.name ?? "");
-  const [email, setEmail] = useState(initialData?.email ?? "");
-  const [phone, setPhone] = useState(initialData?.phone ?? "");
-  const [color, setColor] = useState(initialData?.color ?? "#22c55e");
-  const [allowOverlap, setAllowOverlap] = useState(initialData?.allowOverlap ?? false);
   const [workingHours, setWorkingHours] = useState<WorkingHour[]>(
     initialData?.workingHours ?? []
   );
@@ -44,6 +48,14 @@ const DAYS = [
     initialData?.services?.map(s => s._id) ?? []
   );
   
+  const {
+      register,
+      handleSubmit,
+      setError,
+      clearErrors,
+      formState: { errors }
+  } = useForm<ProfessionalFormValues>();
+
 
 
 const upsertWorkingHour = (day: number, patch: Partial<WorkingHour>) => {
@@ -121,31 +133,71 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
   };
 
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit({
-      name,
-      email: email || undefined,
-      phone: phone || undefined,
-      color,
+  const onValidSubmit = async  (values: ProfessionalFormValues) => {
+    console.log(selectedServices)
+      if (selectedServices.length === 0) {
+      setError("root.services", { message: "Seleccioná al menos un servicio" });
+      return;
+    }
+
+    clearErrors("root.services");
+
+    for (let i = 0; i < timeOff.length; i++) {
+      const { start, end } = timeOff[i];
+      if (!start || !end) {
+        setError("root.timeoff", { message: "Completa las fechas de bloqueo" });
+        return;
+      }
+
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+
+      if (startDate >= endDate) {
+        setError("root.timeoff", {
+          message: "La fecha de inicio debe ser anterior a la de fin"
+        });
+        return;
+      }
+    }
+
+    clearErrors("root.timeoff");
+
+    const payload: ProfessionalPayload = {
+      name: values.name.trim(),
+      email: values.email?.trim() || undefined,
+      phone: values.phone?.trim() || undefined,
+      color: values.color,
       services: selectedServices,
-      allowOverlap,
-      workingHours: workingHours.filter(w => w.startTime && w.endTime),
+      allowOverlap: values.allowOverlap,
+      workingHours: workingHours.filter(
+        w => w.startTime && w.endTime
+      ),
       timeOff: timeOff.filter(t => t.start && t.end)
-    });
+    };
+
+    await onSubmit(payload);
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
       <div className="space-y-1">
         <label className="text-xs font-medium text-slate-300">Nombre</label>
         <input
           type="text"
-          className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          required
+          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          {...register("name", {
+            required: "El nombre es obligatorio",
+            minLength: {
+              value: 2,
+              message: "Debe tener al menos 2 caracteres"
+            }
+          })}
         />
+        {errors.name && (
+          <p className="text-[11px] text-red-400 mt-1">
+            {errors.name.message}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -153,19 +205,39 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
           <label className="text-xs font-medium text-slate-300">Email</label>
           <input
             type="email"
-            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
+            className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+            {...register("email", {
+              required: "El email es obligatorio",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Email inválido"
+              }
+            })}
           />
+          {errors.email && (
+            <p className="text-[11px] text-red-400 mt-1">
+              {errors.email.message}
+            </p>
+          )}
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">Teléfono</label>
+          <label className="text-xs font-medium text-slate-300">Telefono</label>
           <input
             type="text"
-            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
+            className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+            {...register("phone", {
+              required: "El telefono es obligatorio",
+              minLength: {
+                value: 6,
+                message: "Demasiado corto"
+              }
+            })}
           />
+          {errors.phone && (
+            <p className="text-[11px] text-red-400 mt-1">
+              {errors.phone.message}
+            </p>
+          )}
         </div>
       </div>
 
@@ -200,6 +272,11 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
             ))}
           </div>
         )}
+        {errors.root?.services && (
+          <p className="text-[11px] text-red-400 mt-1">
+            {errors.root.services.message}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-[auto,1fr] gap-3 items-center">
@@ -208,8 +285,7 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
             id="allowOverlapProf"
             type="checkbox"
             className="h-4 w-4 rounded border-slate-600 bg-slate-900"
-            checked={allowOverlap}
-            onChange={e => setAllowOverlap(e.target.checked)}
+            {...register("allowOverlap")}
           />
           <label
             htmlFor="allowOverlapProf"
@@ -227,14 +303,11 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
             <input
               type="color"
               className="h-8 w-8 rounded-md border border-slate-700 bg-slate-900"
-              value={color}
-              onChange={e => setColor(e.target.value)}
             />
             <input
               type="text"
               className="flex-1 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-              value={color}
-              onChange={e => setColor(e.target.value)}
+              {...register("color")}
             />
           </div>
         </div>
@@ -306,6 +379,12 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
           >
             + Agregar bloqueo
           </button>
+
+          {errors.root?.timeoff && (
+            <p className="text-[11px] text-red-400 mt-1">
+              {errors.root.timeoff.message}
+            </p>
+          )}
         </div>
 
         {timeOff.length === 0 && (
