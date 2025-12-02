@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Professional, ProfessionalFormValues, ProfessionalPayload, Service, TimeOff, WorkingHour } from "../../types";
+import { toLocalInput } from "../../utils/dates";
+import { DAYS, upsertWorkingHourInList } from "../../utils/professionals";
 
 
 interface ProfessionalFormProps {
@@ -22,19 +24,11 @@ export function ProfessionalForm({
   const [timeOff, setTimeOff] = useState<TimeOff[]>(
     initialData?.timeOff ?? []
   );
-const DAYS = [
-{ label: "Lunes", value: 1 },
-{ label: "Martes", value: 2 },
-{ label: "Miércoles", value: 3 },
-{ label: "Jueves", value: 4 },
-{ label: "Viernes", value: 5 },
-{ label: "Sábado", value: 6 },
-{ label: "Domingo", value: 0 },
-];
+
 
 
   const [selectedServices, setSelectedServices] = useState<string[]>(
-    initialData?.services?.map(s => s._id) ?? []
+      initialData?.services?.map(s => s._id) ?? []
   );
   
   const {
@@ -76,16 +70,8 @@ const DAYS = [
   }, [initialData, reset]);
 
 
-const upsertWorkingHour = (day: number, patch: Partial<WorkingHour>) => {
-  setWorkingHours(prev => {
-    const existing = prev.find(w => w.dayOfWeek === day);
-    if (!existing) {
-      return [...prev, { dayOfWeek: day, startTime: "09:00", endTime: "18:00", ...patch }];
-    }
-    return prev.map(w =>
-      w.dayOfWeek === day ? { ...existing, ...patch } : w
-    );
-  });
+const handleChangeHour = (day: number, patch: Partial<WorkingHour>) => {
+  setWorkingHours(prev => upsertWorkingHourInList(prev, day, patch));
 };
 
 const toggleDay = (day: number, enabled: boolean) => {
@@ -135,19 +121,6 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
 
   const removeTimeOff = (index: number) => {
     setTimeOff(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // helper para datetime-local
-  const toLocalInput = (iso: string | undefined) => {
-    if (!iso) return "";
-    const d = new Date(iso);
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    const year = d.getFullYear();
-    const month = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const hours = pad(d.getHours());
-    const minutes = pad(d.getMinutes());
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
 
@@ -361,7 +334,7 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
                     className="h-8 w-24 rounded-md bg-slate-900 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-40"
                     value={getHourForDay(day.value, "startTime")}
                     onChange={e =>
-                      upsertWorkingHour(day.value, { startTime: e.target.value })
+                      handleChangeHour(day.value, { startTime: e.target.value })
                     }
                     disabled={!enabled}
                   />
@@ -371,7 +344,7 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
                     className="h-8 w-24 rounded-md bg-slate-900 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-40"
                     value={getHourForDay(day.value, "endTime")}
                     onChange={e =>
-                      upsertWorkingHour(day.value, { endTime: e.target.value })
+                      handleChangeHour(day.value, { endTime: e.target.value })
                     }
                     disabled={!enabled}
                   />

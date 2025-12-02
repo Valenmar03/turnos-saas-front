@@ -12,6 +12,7 @@ import { useServices } from "../hooks/useServices";
 import { useProfessionals } from "../hooks/useProfessionals";
 import { useClients } from "../hooks/useClients";
 import { AppointmentForm } from "../components/appointments/AppointmentForm";
+import { toLocalInputValue } from "../utils/dates";
 
 export default function CalendarPage() {
   const {
@@ -51,15 +52,6 @@ export default function CalendarPage() {
     return obj.name || obj._id;
   };
 
-    const toLocalInputValue = (date: Date) => {
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
 
   const events = useMemo(
     () =>

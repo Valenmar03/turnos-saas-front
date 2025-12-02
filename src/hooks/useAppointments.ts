@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/axios";
 import toast from "react-hot-toast";
-import { getErrorMessage } from "../utils";
+import { getErrorMessage } from "../utils/errors";
 import type { Appointment, AppointmentPayload } from "../types";
 
 export function useAppointments() {
