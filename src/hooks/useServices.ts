@@ -2,29 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, CURRENT_BUSINESS_ID } from "../api/axios";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../utils";
+import type { Service, ServicePayload } from "../types";
 
-export interface Service {
-  _id: string;
-  name: string;
-  description?: string;
-  durationMinutes: number;
-  price: number;
-  category?: string;
-  color?: string;
-  allowOverlap?: boolean;
-  maxConcurrentAppointments?: number;
-}
 
-export interface ServicePayload {
-  name: string;
-  description?: string;
-  durationMinutes: number;
-  price?: number;
-  category?: string;
-  color?: string;
-  allowOverlap?: boolean;
-  maxConcurrentAppointments?: number;
-}
 
 export function useServices() {
   const queryClient = useQueryClient();

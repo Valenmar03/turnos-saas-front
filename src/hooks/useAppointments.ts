@@ -2,30 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/axios";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../utils";
-
-export interface Appointment {
-  _id: string;
-  business: string;
-  service: any;       // puede venir populado o como id, lo manejamos en el front
-  professional: any;
-  client: any;
-  start: string;      // ISO
-  end?: string;       // ISO
-  status: "pending" | "confirmed" | "cancelled" | "completed";
-  source?: "manual" | "online";
-  notes?: string;
-}
-
-export interface AppointmentPayload {
-  service: string;
-  professional: string;
-  client: string;
-  start: string;  // ISO
-  end?: string;   // ISO
-  status?: "pending" | "confirmed" | "cancelled" | "completed";
-  source?: "manual" | "online";
-  notes?: string;
-}
+import type { Appointment, AppointmentPayload } from "../types";
 
 export function useAppointments() {
   const queryClient = useQueryClient();

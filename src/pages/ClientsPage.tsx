@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
-import { useClients, type Client } from "../hooks/useClients";
+import { useClients} from "../hooks/useClients";
 import { ClientForm } from "../components/clients/ClientForm";
+import type { Client } from "../types";
 
 export default function ClientsPage() {
   const {

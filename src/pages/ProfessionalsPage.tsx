@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Scissors, X } from "lucide-react";
-import { useProfessionals, type Professional } from "../hooks/useProfessionals";
+import { useProfessionals } from "../hooks/useProfessionals";
 import { useServices } from "../hooks/useServices";
 import { ProfessionalForm } from "../components/professionals/ProfessionalForm";
+import type { Professional } from "../types";
 
 export default function ProfessionalsPage() {
   const {

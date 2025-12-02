@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { AppointmentPayload } from "../../hooks/useAppointments";
-import type { Service } from "../../hooks/useServices";
-import type { Professional } from "../../hooks/useProfessionals";
-import type { Client } from "../../hooks/useClients";
+import type { AppointmentFormValues, AppointmentPayload, Client, Professional, Service } from "../../types";
 
 interface AppointmentFormProps {
   services: Service[];
@@ -13,14 +10,6 @@ interface AppointmentFormProps {
   loading?: boolean;
   initialStartLocal?: string;
 }
-
-type AppointmentFormValues = {
-  clientId: string;
-  professionalId: string;
-  serviceId: string;
-  startLocal: string;
-  notes?: string;
-};
 
 export function AppointmentForm({
   services,

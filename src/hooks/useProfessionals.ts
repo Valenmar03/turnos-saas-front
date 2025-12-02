@@ -2,43 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, CURRENT_BUSINESS_ID } from "../api/axios";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../utils";
-
-export interface WorkingHour {
-  dayOfWeek: number;
-  startTime: string;
-  endTime: string;
-}
-
-export interface TimeOff {
-  _id?: string;
-  start: string;  
-  end: string;     
-  reason?: string;
-}
-
-export interface Professional {
-  _id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  services?: { _id: string; name: string }[];
-  color?: string;
-  allowOverlap?: boolean;
-  workingHours?: WorkingHour[];   
-  timeOff?: TimeOff[];
-}
-
-export interface ProfessionalPayload {
-  name: string;
-  email?: string;
-  phone?: string;
-  services?: string[];
-  color?: string;
-  allowOverlap?: boolean;
-  workingHours?: WorkingHour[];   
-  timeOff?: TimeOff[];
-}
-
+import type { Professional, ProfessionalPayload } from "../types";
 
 export function useProfessionals() {
   const queryClient = useQueryClient();

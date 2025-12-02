@@ -1,7 +1,6 @@
-import { useState, type FormEvent } from "react";
-import type { Professional, ProfessionalPayload, WorkingHour, TimeOff  } from "../../hooks/useProfessionals";
-import type { Service } from "../../hooks/useServices";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import type { Professional, ProfessionalFormValues, ProfessionalPayload, Service, TimeOff, WorkingHour } from "../../types";
 
 
 interface ProfessionalFormProps {
@@ -10,16 +9,6 @@ interface ProfessionalFormProps {
   onSubmit: (data: ProfessionalPayload) => void;
   loading?: boolean;
 }
-
-type ProfessionalFormValues = {
-  name: string;
-  email?: string;
-  phone?: string;
-  color: string;
-  allowOverlap: boolean;
-};
-
-
 
 export function ProfessionalForm({
   initialData,
@@ -53,9 +42,38 @@ const DAYS = [
       handleSubmit,
       setError,
       clearErrors,
+      reset,
       formState: { errors }
   } = useForm<ProfessionalFormValues>();
 
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        name: initialData.name ?? "",
+        email: initialData.email ?? "",
+        phone: initialData.phone ?? "",
+        color: initialData.color ?? "#6366f1",
+        allowOverlap: initialData.allowOverlap ?? false,
+      });
+
+      setSelectedServices(initialData.services?.map(s => s._id) ?? []);
+
+      setWorkingHours(initialData.workingHours ?? []);
+
+      setTimeOff(initialData.timeOff ?? []);
+    } else {
+      reset({
+        name: "",
+        email: "",
+        phone: "",
+        color: "#6366f1",
+        allowOverlap: false,
+      });
+      setSelectedServices([]);
+      setWorkingHours([]);
+      setTimeOff([]);
+    }
+  }, [initialData, reset]);
 
 
 const upsertWorkingHour = (day: number, patch: Partial<WorkingHour>) => {

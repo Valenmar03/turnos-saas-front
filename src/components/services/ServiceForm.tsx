@@ -1,19 +1,11 @@
 import { useForm } from "react-hook-form";
-import type { Service, ServicePayload } from "../../hooks/useServices";
+import type { Service, ServiceFormValues, ServicePayload } from "../../types";
 
 interface ServiceFormProps {
   initialData?: Service;
   onSubmit: (data: ServicePayload) => void | Promise<void>;
   loading?: boolean;
 }
-
-type ServiceFormValues = {
-  name: string;
-  durationMinutes: number;
-  price?: number | null;
-  allowOverlap: boolean;
-  maxConcurrentAppointments: number;
-};
 
 export function ServiceForm({ initialData, onSubmit, loading }: ServiceFormProps) {
   const {

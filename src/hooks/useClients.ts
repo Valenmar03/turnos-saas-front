@@ -2,22 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, CURRENT_BUSINESS_ID } from "../api/axios";
 import { getErrorMessage } from "../utils";
 import toast from "react-hot-toast";
+import type { Client, ClientPayload } from "../types";
 
-export interface Client {
-  _id: string;
-  business: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  notes?: string;
-}
 
-export interface ClientPayload {
-  name: string;
-  email?: string;
-  phone?: string;
-  notes?: string;
-}
 
 export function useClients() {
   const queryClient = useQueryClient();

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
-import { useServices, type Service } from "../hooks/useServices";
+import { useServices } from "../hooks/useServices";
 import { ServiceForm } from "../components/services/ServiceForm";
+import type { Service } from "../types";
 
 export default function ServicesPage() {
   const {

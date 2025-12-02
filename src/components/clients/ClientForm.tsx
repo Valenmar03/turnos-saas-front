@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import type { Client, ClientPayload } from "../../hooks/useClients";
+import type { Client, ClientFormValues, ClientPayload } from "../../types";
 
 interface ClientFormProps {
   initialData?: Client;
@@ -7,11 +7,7 @@ interface ClientFormProps {
   loading?: boolean;
 }
 
-type ClientFormValues = {
-  name: string;
-  email?: string;
-  phone?: string;
-};
+
 
 export function ClientForm({ initialData, onSubmit, loading }: ClientFormProps) {
   const {

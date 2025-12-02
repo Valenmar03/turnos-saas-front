@@ -7,7 +7,6 @@ import interactionPlugin from "@fullcalendar/interaction";
 import type { EventClickArg } from "@fullcalendar/core";
 import esLocale from "@fullcalendar/core/locales/es";
 
-import type { TimeOff } from "../hooks/useProfessionals";
 import { useAppointments } from "../hooks/useAppointments";
 import { useServices } from "../hooks/useServices";
 import { useProfessionals } from "../hooks/useProfessionals";
