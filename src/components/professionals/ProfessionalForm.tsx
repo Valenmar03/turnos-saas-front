@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Professional, ProfessionalFormValues, ProfessionalPayload, Service, TimeOff, WorkingHour } from "../../types";
-import { toLocalInput } from "../../utils/dates";
-import { DAYS, upsertWorkingHourInList } from "../../utils/professionals";
+import { upsertWorkingHourInList } from "../../utils/professionals";
+import BasicFieldsForm from "./BasicFieldsForm";
+import TimeOffField from "./TimeOffField";
+import WorkingHoursField from "./WorkingHoursField";
 
 
 interface ProfessionalFormProps {
@@ -124,8 +126,7 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
   };
 
 
-  const onValidSubmit = async  (values: ProfessionalFormValues) => {
-    console.log(selectedServices)
+  const onValidSubmit = (values: ProfessionalFormValues) => {
       if (selectedServices.length === 0) {
       setError("root.services", { message: "Seleccioná al menos un servicio" });
       return;
@@ -166,279 +167,33 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
       timeOff: timeOff.filter(t => t.start && t.end)
     };
 
-    await onSubmit(payload);
+    onSubmit(payload);
   };
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">Nombre</label>
-        <input
-          type="text"
-          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
-          {...register("name", {
-            required: "El nombre es obligatorio",
-            minLength: {
-              value: 2,
-              message: "Debe tener al menos 2 caracteres"
-            }
-          })}
-        />
-        {errors.name && (
-          <p className="text-[11px] text-red-400 mt-1">
-            {errors.name.message}
-          </p>
-        )}
-      </div>
+      <BasicFieldsForm
+        register={register}
+        errors={errors}
+        servicesOptions={servicesOptions}
+        selectedServices={selectedServices}
+        toggleService={toggleService}
+      />
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">Email</label>
-          <input
-            type="email"
-            className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
-            {...register("email", {
-              required: "El email es obligatorio",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Email inválido"
-              }
-            })}
-          />
-          {errors.email && (
-            <p className="text-[11px] text-red-400 mt-1">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">Telefono</label>
-          <input
-            type="text"
-            className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
-            {...register("phone", {
-              required: "El telefono es obligatorio",
-              minLength: {
-                value: 6,
-                message: "Demasiado corto"
-              }
-            })}
-          />
-          {errors.phone && (
-            <p className="text-[11px] text-red-400 mt-1">
-              {errors.phone.message}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
-          Servicios que atiende
-        </label>
-        {servicesOptions.length === 0 ? (
-          <p className="text-xs text-slate-400">
-            No hay servicios cargados. Creá al menos uno primero.
-          </p>
-        ) : (
-          <div className="max-h-40 overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 space-y-1">
-            {servicesOptions.map(s => (
-              <label
-                key={s._id}
-                className="flex items-center gap-2 text-xs text-slate-200"
-              >
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 rounded border-slate-600 bg-slate-900"
-                  checked={selectedServices.includes(s._id)}
-                  onChange={() => toggleService(s._id)}
-                />
-                <span>
-                  {s.name}{" "}
-                  <span className="text-[10px] text-slate-400">
-                    ({s.durationMinutes} min)
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
-        )}
-        {errors.root?.services && (
-          <p className="text-[11px] text-red-400 mt-1">
-            {errors.root.services.message}
-          </p>
-        )}
-      </div>
-
-      <div className="grid grid-cols-[auto,1fr] gap-3 items-center">
-        <div className="flex items-center gap-2">
-          <input
-            id="allowOverlapProf"
-            type="checkbox"
-            className="h-4 w-4 rounded border-slate-600 bg-slate-900"
-            {...register("allowOverlap")}
-          />
-          <label
-            htmlFor="allowOverlapProf"
-            className="text-xs font-medium text-slate-300"
-          >
-            Permitir turnos solapados
-          </label>
-        </div>
-
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">
-            Color (agenda)
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              className="h-8 w-8 rounded-md border border-slate-700 bg-slate-900"
-            />
-            <input
-              type="text"
-              className="flex-1 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-              {...register("color")}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2 mt-4">
-        <p className="text-xs font-medium text-slate-300">
-          Horarios de trabajo
-          <span className="text-[11px] text-slate-400 ml-1">
-            (por día de la semana)
-          </span>
-        </p>
-        <div className="space-y-1 rounded-lg border border-slate-800 bg-slate-900/60 p-3">
-          {DAYS.map(day => {
-            const enabled = workingHours.some(w => w.dayOfWeek === day.value);
-            return (
-              <div
-                key={day.value}
-                className="flex justify-between items-center gap-2 text-xs"
-              >
-                <label className="flex items-center gap-2 text-slate-200">
-                  <input
-                    type="checkbox"
-                    className="h-3 w-3 rounded border-slate-600 bg-slate-900"
-                    checked={enabled}
-                    onChange={e => toggleDay(day.value, e.target.checked)}
-                  />
-                  {day.label}
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="time"
-                    className="h-8 w-24 rounded-md bg-slate-900 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-40"
-                    value={getHourForDay(day.value, "startTime")}
-                    onChange={e =>
-                      handleChangeHour(day.value, { startTime: e.target.value })
-                    }
-                    disabled={!enabled}
-                  />
-                  <span className="text-slate-400 text-[11px]">a</span>
-                  <input
-                    type="time"
-                    className="h-8 w-24 rounded-md bg-slate-900 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-40"
-                    value={getHourForDay(day.value, "endTime")}
-                    onChange={e =>
-                      handleChangeHour(day.value, { endTime: e.target.value })
-                    }
-                    disabled={!enabled}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <WorkingHoursField 
+        workingHours={workingHours}
+        toggleDay={toggleDay}
+        getHourForDay={getHourForDay}
+        handleChangeHour={handleChangeHour}
+      />
       
-      <div className="space-y-2 mt-4">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-medium text-slate-300">
-            Bloqueos / vacaciones
-            <span className="text-[11px] text-slate-400 ml-1">
-              (no se atiende en estos rangos)
-            </span>
-          </p>
-          <button
-            type="button"
-            onClick={addTimeOff}
-            className="text-[11px] px-2 py-1 rounded-md border border-slate-700 text-slate-200 hover:bg-slate-800"
-          >
-            + Agregar bloqueo
-          </button>
-
-          {errors.root?.timeoff && (
-            <p className="text-[11px] text-red-400 mt-1">
-              {errors.root.timeoff.message}
-            </p>
-          )}
-        </div>
-
-        {timeOff.length === 0 && (
-          <p className="text-[11px] text-slate-500">
-            No hay bloqueos configurados para este profesional.
-          </p>
-        )}
-
-        <div className="space-y-2">
-          {timeOff.map((t, index) => (
-            <div
-              key={t._id || index}
-              className="grid grid-cols-1 md:grid-cols-[1fr,1fr,auto] gap-2 items-center rounded-lg border border-slate-800 bg-slate-900/60 p-2"
-            >
-              <div className="space-y-1">
-                <label className="text-[11px] text-slate-300">Inicio</label>
-                <input
-                  type="datetime-local"
-                  className="w-full h-8 rounded-md bg-slate-950 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  value={toLocalInput(t.start)}
-                  onChange={e =>
-                    updateTimeOff(index, {
-                      start: new Date(e.target.value).toISOString()
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[11px] text-slate-300">Fin</label>
-                <input
-                  type="datetime-local"
-                  className="w-full h-8 rounded-md bg-slate-950 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  value={toLocalInput(t.end)}
-                  onChange={e =>
-                    updateTimeOff(index, {
-                      end: new Date(e.target.value).toISOString()
-                    })
-                  }
-                />
-              </div>
-              <div className="flex items-end gap-2">
-                <input
-                  type="text"
-                  placeholder="Motivo (opcional)"
-                  className="w-full h-8 rounded-md bg-slate-950 border border-slate-700 px-2 text-[11px] text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  value={t.reason ?? ""}
-                  onChange={e =>
-                    updateTimeOff(index, { reason: e.target.value })
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={() => removeTimeOff(index)}
-                  className="text-[11px] text-red-400 hover:text-red-300 px-2"
-                >
-                  X
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      <TimeOffField
+        addTimeOff={addTimeOff}
+        errors={errors}
+        timeOff={timeOff}
+        updateTimeOff={updateTimeOff}
+        removeTimeOff={removeTimeOff}
+      />
 
       <button
         type="submit"
