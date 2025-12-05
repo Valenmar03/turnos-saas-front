@@ -1,0 +1,112 @@
+/* CONTENEDOR GENERAL DEL CALENDARIO */
+.fc {
+  font-family: Outfit, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+/* Borde de la “tarjeta” de calendario */
+.fc-theme-standard .fc-scrollgrid {
+  border: 1px solid #adadad; /* gris oscuro */
+  border-radius: 0.75rem;     /* rounded-xl */
+  overflow: hidden;
+  background-color: #020617;  /* slate-950 */
+}
+
+/* CABECERA (días) */
+.fc-col-header-cell {
+  background: #020617;
+  border-color: #111827;
+}
+
+.fc-col-header-cell-cushion {
+  padding: 6px 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
+/* COLUMNA DEL DÍA ACTUAL */
+.fc-day-today {
+  background: rgba(153, 75, 255, 0.795) !important; /* violeta suave */
+}
+
+.fc-day-today .fc-col-header-cell-cushion {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* EJE HORARIO (columna de las horas) */
+.fc-timegrid-axis {
+  background-color: #020617;
+  border-color: #111827;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+/* CELDAS DE HORARIO */
+.fc-timegrid-slot {
+  border-color: #020617; /* lineas horizontales más suaves */
+}
+
+.fc-timegrid-slot.fc-timegrid-slot-lane {
+  background-color: #020617;
+}
+
+.fc-timegrid-slot:hover {
+  background: rgba(148, 163, 184, 0.05); /* hover sutil */
+}
+
+/* FIN DE SEMANA (si querés marcarlos un poquito) */
+.fc-day-sat,
+.fc-day-sun {
+  background-color: #020617;
+}
+
+/* EVENTOS (turnos) */
+.fc-event {
+  border-radius: 0.5rem;
+  border: none;
+  padding: 2px 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.fc-event-main {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Si estás usando un color custom por profesional, esto deja el texto legible */
+.fc-event-main-frame {
+  color: #0b1120;
+}
+
+/* INDICADOR DE HORA ACTUAL */
+.fc-timegrid-now-indicator-line {
+  border-color: #f97316; /* naranja */
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-color: #f97316;
+}
+
+/* SCROLLBARS */
+.fc-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+  background-color: #111827;
+  border-radius: 999px;
+}
+
+/* Quitar borde blanco feo alrededor */
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: #111827;
+}

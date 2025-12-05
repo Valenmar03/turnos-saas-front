@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Router from "./router";
 import "./index.css";
 import { Toaster } from "react-hot-toast";
+import "./styles/calendar.css"; 
 
 const queryClient = new QueryClient();
 
