@@ -65,12 +65,13 @@ export default function CalendarPage() {
         .map(app => {
           const serviceName = resolveServiceName(app.service);
           const clientName = resolveName(app.client);
+          const professionalName = resolveName(app.professional);
           const serviceColor = (app.service as any)?.color;
           const professionalColor = (app.professional as any)?.color;
 
           return {
             id: app._id,
-            title: `${serviceName} · ${clientName}`,
+            title: `${serviceName} · ${clientName} (${professionalName})`,
             start: app.start,
             end: app.end,
             backgroundColor: serviceColor || professionalColor || "#6366f1",
@@ -90,13 +91,11 @@ export default function CalendarPage() {
 
   const businessHours = useMemo(() => {
     if (!selectedProfessional || !selectedProfessional.workingHours?.length) {
-      return true; // sin restricciones, todo el día
+      return true;
     }
 
-    // FullCalendar usa daysOfWeek 0=dom ... 6=sab.
-    // Nosotros guardamos 1=lunes ... 7=domingo.
     return selectedProfessional.workingHours.map(wh => {
-      const fcDay = (wh.dayOfWeek % 7); // 7 (domingo) -> 0
+      const fcDay = (wh.dayOfWeek % 7); 
       return {
         daysOfWeek: [fcDay],
         startTime: wh.startTime,
@@ -115,8 +114,8 @@ export default function CalendarPage() {
       start: t.start,
       end: t.end,
       display: "background" as const,
-      backgroundColor: "rgba(239,68,68,0.25)", // rojito translúcido
-      overlap: true, // deja ver eventos encima, pero visualmente bloqueado
+      backgroundColor: "rgba(239,68,68,0.25)",
+      overlap: true, 
       extendedProps: {
         isTimeOff: true,
         reason: t.reason
@@ -161,8 +160,7 @@ export default function CalendarPage() {
               Agenda de turnos
             </h1>
             <p className="text-sm text-slate-400">
-              Vista de calendario semanal / diaria. Después sumamos horarios y
-              restricciones.
+              Vista de calendario semanal / diaria.
             </p>
           </div>
         </div>

@@ -11,7 +11,6 @@ export default function Router() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Navigate to="/calendar" />} />
-
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/professionals" element={<ProfessionalsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
