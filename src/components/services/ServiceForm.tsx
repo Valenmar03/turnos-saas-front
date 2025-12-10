@@ -46,10 +46,10 @@ export function ServiceForm({ initialData, onSubmit, loading }: ServiceFormProps
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">Nombre</label>
+        <label className="text-xl font-bold text-jordy-blue-800">Nombre</label>
         <input
           type="text"
-          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("name", {
             required: "El nombre es obligatorio",
             minLength: {
@@ -64,13 +64,13 @@ export function ServiceForm({ initialData, onSubmit, loading }: ServiceFormProps
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
+        <label className="text-xl font-bold text-jordy-blue-800">
           Duración (minutos)
         </label>
         <input
           type="number"
           min={1}
-          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("durationMinutes", {
             valueAsNumber: true,
             required: "La duración es obligatoria",
@@ -88,14 +88,14 @@ export function ServiceForm({ initialData, onSubmit, loading }: ServiceFormProps
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
+        <label className="text-xl font-bold text-jordy-blue-800">
           Precio (opcional)
         </label>
         <input
           type="number"
           min={0}
           step="0.01"
-          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("price", {
             valueAsNumber: true,
             validate: value => {
@@ -111,33 +111,33 @@ export function ServiceForm({ initialData, onSubmit, loading }: ServiceFormProps
         )}
       </div>
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
+        <label className="text-xl font-bold text-jordy-blue-800">
           Solapamiento
         </label>
         <div className="flex items-center gap-2">
           <input
             id="allowOverlapService"
             type="checkbox"
-            className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+            className="h-4 w-4 rounded border-jordy-blue-600 bg-jordy-blue-900"
             {...register("allowOverlap")}
           />
           <label
             htmlFor="allowOverlapService"
-            className="text-xs text-slate-300"
+            className=" text-jordy-blue-700"
           >
             Permitir más de un turno a la vez para este servicio
           </label>
         </div>
 
         {allowOverlap && (
-          <div className="mt-2 space-y-1">
-            <label className="text-xs text-slate-300">
+          <div className="mt-2 space-y-1 flex justify-between items-center">
+            <label className="font-bold text-jordy-blue-800">
               Máx. turnos simultáneos
             </label>
             <input
               type="number"
               min={1}
-              className="w-32 rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+              className="w-1/2 rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
               {...register("maxConcurrentAppointments", {
                 valueAsNumber: true,
                 required: "Indicá el máximo de turnos simultáneos",
@@ -159,7 +159,7 @@ export function ServiceForm({ initialData, onSubmit, loading }: ServiceFormProps
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium py-2.5 mt-2"
+        className="w-full rounded-lg text-jordy-blue-200 text-lg bg-jordy-blue-600 hover:bg-jordy-blue-500 disabled:opacity-60 disabled:cursor-not-allowed font-medium py-2.5 mt-2 duration-200"
       >
         {loading ? "Guardando..." : "Guardar servicio"}
       </button>
