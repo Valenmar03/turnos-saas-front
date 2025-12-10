@@ -57,9 +57,9 @@ export function AppointmentForm({
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">Cliente</label>
+        <label className="text-xl font-bold text-jordy-blue-800">Cliente</label>
         <select
-          className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("clientId", {
             required: "Seleccioná un cliente"
           })}
@@ -80,11 +80,11 @@ export function AppointmentForm({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">
+          <label className="text-xl font-bold text-jordy-blue-800">
             Profesional
           </label>
           <select
-            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
             {...register("professionalId", {
               required: "Seleccioná un profesional"
             })}
@@ -104,9 +104,9 @@ export function AppointmentForm({
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-300">Servicio</label>
+          <label className="text-xl font-bold text-jordy-blue-800">Servicio</label>
           <select
-            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
             {...register("serviceId", {
               required: "Seleccioná un servicio"
             })}
@@ -127,12 +127,12 @@ export function AppointmentForm({
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
+        <label className="text-xl font-bold text-jordy-blue-800">
           Fecha y hora de inicio
         </label>
         <input
           type="datetime-local"
-          className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("startLocal", {
             required: "Seleccioná fecha y hora",
             validate: value => {
@@ -154,10 +154,10 @@ export function AppointmentForm({
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">Notas</label>
+        <label className="text-xl font-bold text-jordy-blue-800">Notas</label>
         <textarea
           rows={2}
-          className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("notes")}
         />
       </div>
@@ -165,7 +165,7 @@ export function AppointmentForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium py-2.5 mt-2"
+        className="w-full rounded-lg text-jordy-blue-200 text-lg bg-jordy-blue-600 hover:bg-jordy-blue-500 disabled:opacity-60 disabled:cursor-not-allowed font-medium py-2.5 mt-2 duration-200"
       >
         {loading ? "Guardando turno..." : "Guardar turno"}
       </button>

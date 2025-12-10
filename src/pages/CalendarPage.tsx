@@ -232,11 +232,11 @@ export default function CalendarPage() {
 
       {openCreate && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-slate-900 border border-slate-700 p-5 shadow-xl">
+          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl color text-jordy-blue-800">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-sm font-semibold">Nuevo turno</h2>
+              <h2 className="text-2xl font-semibold">Nuevo turno</h2>
               <button
-                className="text-xs text-slate-400 hover:text-slate-200"
+                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
                 onClick={() => setOpenCreate(false)}
               >
                 <X/>

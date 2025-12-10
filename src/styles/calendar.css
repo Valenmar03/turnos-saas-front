@@ -108,3 +108,50 @@
 .fc-theme-standard th {
   border-color: #111827;
 }
+
+/* estilo base de todos los botones del calendario */
+.fc .fc-button-primary {
+  background-color: #304d9d;   /* azul base */
+  border-color: #304d9d;
+  color: #c7def6;
+  border-radius: 0.5rem;
+  font-size: 16px;
+  padding: 4px 10px;
+}
+
+/* hover */
+.fc .fc-button-primary:hover {
+  background-color: #345ec1;
+  border-color: #345ec1;
+  transition-duration: 300ms;
+}
+
+/* disabled (por ejemplo si hoy ya es hoy) */
+.fc .fc-button-primary:disabled {
+  background-color: #a0c9f0;
+  border-color: #a0c9f0;
+  color: #304d9d;
+  opacity: 0.8;
+}
+
+
+/* botón activo (vista seleccionada) */
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #a0c9f0;  /* probá con rojo para ver bien el cambio */
+  border-color: #a0c9f0;
+  color: #304d9d;
+}
+
+
+/* ===========================
+   VISTA MES (dayGridMonth)
+   =========================== */
+
+.fc .fc-daygrid-day-frame {
+  background-color:  #304d9d;
+  color: #dfecfa;
+}
+
+.fc .fc-daygrid-day-top {
+  background-color: #345ec17a;
+}
