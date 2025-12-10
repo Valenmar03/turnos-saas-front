@@ -154,12 +154,12 @@ export default function CalendarPage() {
       {/* HEADER */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <CalendarDays className="w-6 h-6 text-violet-400" />
+          <CalendarDays className="w-6 h-6 text-jordy-blue-700" />
           <div>
-            <h1 className="text-2xl font-semibold text-slate-50">
+            <h1 className="text-2xl font-semibold text-jordy-blue-900">
               Agenda de turnos
             </h1>
-            <p className="text-sm text-slate-400">
+            <p className=" text-jordy-blue-600">
               Vista de calendario semanal / diaria.
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function CalendarPage() {
 
         <div className="flex items-center gap-2">
           <select
-            className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-slate-200"
+            className="rounded-lg bg-jordy-blue-300 border px-4 py-2 text-jordy-blue-900"
             value={selectedProfessionalId}
             onChange={e =>
               setSelectedProfessionalId(
@@ -188,7 +188,7 @@ export default function CalendarPage() {
               setSelectedStartLocal(null);
               setOpenCreate(true);
             }}
-            className="inline-flex items-center gap-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-sm font-medium px-3 py-2"
+            className="inline-flex items-center gap-2 rounded-lg bg-jordy-blue-700 hover:bg-jordy-blue-600 text-jordy-blue-200 font-medium px-3 py-2 duration-200"
           >
             <Plus className="w-4 h-4" />
             Nuevo turno
@@ -205,7 +205,7 @@ export default function CalendarPage() {
         </p>
       )}
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-2 md:p-4">
+      <div className="rounded-xl border border-jordy-blue-300 bg-jordy-blue-300/50 p-2 md:p-4 shadow-lg">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="timeGridWeek"

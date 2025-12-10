@@ -2,7 +2,7 @@
 .fc {
   font-family: Outfit, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
-  color: #e5e7eb;
+  color: #345ec1;
 }
 
 /* Borde de la “tarjeta” de calendario */
@@ -15,8 +15,7 @@
 
 /* CABECERA (días) */
 .fc-col-header-cell {
-  background: #020617;
-  border-color: #111827;
+  background: #c7def6;
 }
 
 .fc-col-header-cell-cushion {
@@ -24,24 +23,24 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #9ca3af;
+  color: #345ec1;
 }
 
 /* COLUMNA DEL DÍA ACTUAL */
 .fc-day-today {
-  background: rgba(153, 75, 255, 0.795) !important; /* violeta suave */
+  background: #304d9d !important; /* violeta suave */
 }
 
 .fc-day-today .fc-col-header-cell-cushion {
-  color: #ffffff;
+  color: #dfecfa;
   font-weight: 600;
 }
 
 /* EJE HORARIO (columna de las horas) */
 .fc-timegrid-axis {
-  background-color: #020617;
-  border-color: #111827;
-  color: #0055ff;
+  background-color: #c7def6;
+  border-color: #345ec1;
+  color: #345ec1;
   font-size: 15px;
 }
 
@@ -51,16 +50,16 @@
 }
 
 .fc-timegrid-slot.fc-timegrid-slot-lane {
-  background-color: #020617;
+  background-color: #304d9d;
 }
 
 .fc-timegrid-slot:hover {
-  background: rgba(148, 163, 184, 0.05); /* hover sutil */
+  background: #345ec1 /* hover sutil */
 }
 
 /* FIN DE SEMANA (si querés marcarlos un poquito) */
 .fc-day-sun {
-  background-color: #3b3a3a;
+  background-color: #a0c9f0;
 }
 
 /* EVENTOS (turnos) */
@@ -83,11 +82,11 @@
 
 /* INDICADOR DE HORA ACTUAL */
 .fc-timegrid-now-indicator-line {
-  border-color: #f97316; /* naranja */
+  border-color: #a0c9f0; /* naranja */
 }
 
 .fc-timegrid-now-indicator-arrow {
-  border-color: #f97316;
+  border-color: #a0c9f0;
 }
 
 /* SCROLLBARS */
