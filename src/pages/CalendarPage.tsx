@@ -167,7 +167,7 @@ export default function CalendarPage() {
 
         <div className="flex items-center gap-2">
           <select
-            className="rounded-lg bg-jordy-blue-300 border px-4 py-2 text-jordy-blue-900"
+            className="rounded-lg bg-jordy-blue-200 border px-4 py-2 text-jordy-blue-900"
             value={selectedProfessionalId}
             onChange={e =>
               setSelectedProfessionalId(
@@ -205,11 +205,15 @@ export default function CalendarPage() {
         </p>
       )}
 
-      <div className="rounded-xl border border-jordy-blue-300 bg-jordy-blue-300/50 p-2 md:p-4 shadow-lg">
+      <div className="rounded-xl border border-jordy-blue-00 bg-jordy-blue-100 p-2 md:p-4 shadow-lg">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="timeGridWeek"
           locale={esLocale}
+          titleFormat={{
+            year: "numeric",
+            month: "long"
+          }}
           headerToolbar={{
             left: "prev,next today",
             center: "title",
