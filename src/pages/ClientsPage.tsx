@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, X, UserCircle2 } from "lucide-react";
+import { Plus, X, UserCircle2 } from "lucide-react";
 import { useClients} from "../hooks/useClients";
 import { ClientForm } from "../components/clients/ClientForm";
 import type { Client } from "../types";
