@@ -48,6 +48,13 @@ export function useAppointments() {
     }
   });
 
+  const updateAppointmentMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      api.patch(`/appointments/${id}`, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["appointments"] })
+  });
+
+
   const cancelAppointmentMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await api.patch(`/appointments/${id}/cancel`);
@@ -65,6 +72,7 @@ export function useAppointments() {
   return {
     appointmentsQuery,
     createAppointmentMutation,
+    updateAppointmentMutation,
     deleteAppointmentMutation,
     cancelAppointmentMutation
   };

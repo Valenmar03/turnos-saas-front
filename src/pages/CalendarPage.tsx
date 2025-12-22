@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { CalendarDays, Plus, X } from "lucide-react";
+import { CalendarDays, Plus, X, Trash2 } from "lucide-react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -18,9 +18,11 @@ export default function CalendarPage() {
   const {
     appointmentsQuery,
     createAppointmentMutation,
+    updateAppointmentMutation,
     cancelAppointmentMutation,
     deleteAppointmentMutation
   } = useAppointments();
+
   const { servicesQuery } = useServices();
   const { professionalsQuery } = useProfessionals();
   const { clientsQuery } = useClients();
@@ -29,16 +31,18 @@ export default function CalendarPage() {
   const [selectedStartLocal, setSelectedStartLocal] = useState<string | null>(null);
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | "all">("all");
 
+  const [openEdit, setOpenEdit] = useState(false);
+  const [editingAppointmentId, setEditingAppointmentId] = useState<string | null>(null);
+
   const { data: appointments, isLoading, error } = appointmentsQuery;
   const { data: services = [] } = servicesQuery;
   const { data: professionals = [] } = professionalsQuery;
   const { data: clients = [] } = clientsQuery;
 
-
   const selectedProfessional =
-  selectedProfessionalId === "all"
-    ? null
-    : professionals?.find(p => p._id === selectedProfessionalId) ?? null;
+    selectedProfessionalId === "all"
+      ? null
+      : professionals?.find(p => p._id === selectedProfessionalId) ?? null;
 
   const resolveName = (obj: any) => {
     if (!obj) return "-";
@@ -52,13 +56,12 @@ export default function CalendarPage() {
     return obj.name || obj._id;
   };
 
-
   const events = useMemo(
     () =>
       (appointments ?? [])
         .filter(app =>
           selectedProfessional
-            ? app.professional && (app.professional as any)._id === selectedProfessional._id ||
+            ? (app.professional && (app.professional as any)._id === selectedProfessional._id) ||
               app.professional === selectedProfessional._id
             : true
         )
@@ -78,6 +81,7 @@ export default function CalendarPage() {
             borderColor: serviceColor || professionalColor || "#4f46e5",
             textColor: "#f9fafb",
             extendedProps: {
+              isTimeOff: false,
               status: app.status,
               client: app.client,
               professional: app.professional,
@@ -95,7 +99,7 @@ export default function CalendarPage() {
     }
 
     return selectedProfessional.workingHours.map(wh => {
-      const fcDay = (wh.dayOfWeek % 7); 
+      const fcDay = wh.dayOfWeek % 7;
       return {
         daysOfWeek: [fcDay],
         startTime: wh.startTime,
@@ -115,15 +119,13 @@ export default function CalendarPage() {
       end: t.end,
       display: "background" as const,
       backgroundColor: "rgba(239,68,68,0.25)",
-      overlap: true, 
+      overlap: true,
       extendedProps: {
         isTimeOff: true,
         reason: t.reason
       }
     }));
   }, [selectedProfessional]);
-
-
 
   const handleSelect = (arg: any) => {
     const startLocal = toLocalInputValue(arg.start);
@@ -132,26 +134,26 @@ export default function CalendarPage() {
     arg.view.calendar.unselect();
   };
 
-
   const handleEventClick = (arg: EventClickArg) => {
-    const id = arg.event.id;
+    const isTimeOff = (arg.event.extendedProps as any)?.isTimeOff;
+    if (isTimeOff) return;
 
-    const action = window.prompt(
-      "Acción sobre el turno:\n- escribir 'c' para cancelar\n- escribir 'd' para eliminar\nCualquier otra cosa para salir"
-    );
+    setEditingAppointmentId(arg.event.id);
+    setOpenEdit(true);
+  };
 
-    if (action === "c") {
-      cancelAppointmentMutation.mutate(id);
-    } else if (action === "d") {
-      if (window.confirm("¿Seguro que querés eliminar el turno?")) {
-        deleteAppointmentMutation.mutate(id);
-      }
-    }
+  const editingAppointment = useMemo(() => {
+    if (!editingAppointmentId) return null;
+    return (appointments ?? []).find(a => a._id === editingAppointmentId) ?? null;
+  }, [editingAppointmentId, appointments]);
+
+  const closeEditModal = () => {
+    setOpenEdit(false);
+    setEditingAppointmentId(null);
   };
 
   return (
     <div className="space-y-4">
-      {/* HEADER */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <CalendarDays className="w-6 h-6 text-jordy-blue-700" />
@@ -210,10 +212,7 @@ export default function CalendarPage() {
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="timeGridWeek"
           locale={esLocale}
-          titleFormat={{
-            year: "numeric",
-            month: "long"
-          }}
+          titleFormat={{ year: "numeric", month: "long" }}
           headerToolbar={{
             left: "prev,next today",
             center: "title",
@@ -227,35 +226,91 @@ export default function CalendarPage() {
           select={handleSelect}
           eventClick={handleEventClick}
           events={[...events, ...timeOffBackgroundEvents]}
-          businessHours={businessHours} 
+          businessHours={businessHours}
           height="auto"
           nowIndicator={true}
-          firstDay={1} 
+          firstDay={1}
         />
       </div>
 
       {openCreate && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl color text-jordy-blue-800">
+          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl text-jordy-blue-800">
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-2xl font-semibold">Nuevo turno</h2>
               <button
                 className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
                 onClick={() => setOpenCreate(false)}
               >
-                <X/>
+                <X />
               </button>
             </div>
+
             <AppointmentForm
-              services={services || []}
-              professionals={professionals || []}
-              clients={clients || []}
+              services={services}
+              professionals={professionals}
+              clients={clients}
               loading={createAppointmentMutation.isPending}
               initialStartLocal={selectedStartLocal || undefined}
               onSubmit={async data => {
                 await createAppointmentMutation.mutateAsync(data);
                 setOpenCreate(false);
                 setSelectedStartLocal(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {openEdit && editingAppointment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl text-jordy-blue-800">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-2xl font-semibold">Editar turno</h2>
+
+              <button
+                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
+                onClick={closeEditModal}
+              >
+                <X />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <button
+                className="px-3 py-2 rounded-lg bg-jordy-blue-500/80 hover:bg-jordy-blue-500 text-jordy-blue-950 text-sm font-medium disabled:opacity-60 duration-200"
+                disabled={cancelAppointmentMutation.isPending}
+                onClick={() => cancelAppointmentMutation.mutate(editingAppointment._id)}
+              >
+                {cancelAppointmentMutation.isPending ? "Cancelando..." : "Cancelar turno"}
+              </button>
+
+              <button
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-medium disabled:opacity-60 duration-200"
+                disabled={deleteAppointmentMutation.isPending}
+                onClick={async () => {
+                  if (!window.confirm("¿Seguro que querés eliminar el turno?")) return;
+                  await deleteAppointmentMutation.mutateAsync(editingAppointment._id);
+                  closeEditModal();
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+                {deleteAppointmentMutation.isPending ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+
+            <AppointmentForm
+              services={services}
+              professionals={professionals}
+              clients={clients}
+              loading={updateAppointmentMutation.isPending}
+              initialData={editingAppointment}   
+              onSubmit={async data => {
+                await updateAppointmentMutation.mutateAsync({
+                  id: editingAppointment._id,
+                  data
+                });
+                closeEditModal();
               }}
             />
           </div>

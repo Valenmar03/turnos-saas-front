@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { AppointmentFormValues, AppointmentPayload, Client, Professional, Service } from "../../types";
+import type { Appointment, AppointmentFormValues, AppointmentPayload, Client, Professional, Service } from "../../types";
+import { toLocalInputValue } from "../../utils/dates";
 
 interface AppointmentFormProps {
   services: Service[];
   professionals: Professional[];
   clients: Client[];
+  initialData?: Appointment;
   onSubmit: (data: AppointmentPayload) => void | Promise<void>;
   loading?: boolean;
   initialStartLocal?: string;
@@ -15,23 +17,40 @@ export function AppointmentForm({
   services,
   professionals,
   clients,
+  initialData,
+  initialStartLocal,
   onSubmit,
-  loading,
-  initialStartLocal
+  loading
 }: AppointmentFormProps) {
+  const defaultValues: AppointmentFormValues = {
+    clientId: initialData
+      ? typeof initialData.client === "string"
+        ? initialData.client
+        : initialData.client?._id ?? ""
+      : "",
+    professionalId: initialData
+      ? typeof initialData.professional === "string"
+        ? initialData.professional
+        : initialData.professional?._id ?? ""
+      : "",
+    serviceId: initialData
+      ? typeof initialData.service === "string"
+        ? initialData.service
+        : initialData.service?._id ?? ""
+      : "",
+    startLocal: initialData
+      ? toLocalInputValue(new Date(initialData.start))
+      : initialStartLocal ?? "",
+    notes: initialData?.notes ?? ""
+  };
+
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors }
   } = useForm<AppointmentFormValues>({
-    defaultValues: {
-      clientId: "",
-      professionalId: "",
-      serviceId: "",
-      startLocal: initialStartLocal ?? "",
-      notes: ""
-    }
+    defaultValues
   });
 
   useEffect(() => {
