@@ -17,7 +17,7 @@ const navItems = [
   { id: "professionals", label: "Profesionales", path: "/professionals", icon: Users },
   { id: "clients", label: "Clientes", path: "/clients", icon: UserCircle2 },
   { id: "business", label: "Negocios", path: "/business", icon: Building2 },
-  { id: "settings", label: "Configuración", path: "/settings", icon: Settings }
+  { id: "settings", label: "Administración", path: "/settings", icon: Settings }
 ];
 
 export function MainLayout() {
@@ -45,7 +45,7 @@ export function MainLayout() {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors
+                  `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
                   ${isActive ? "bg-jordy-blue-500 text-white" : "text-jordy-blue-900 hover:bg-jordy-blue-300"}`
                 }
               >

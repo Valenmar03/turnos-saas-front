@@ -4,6 +4,7 @@ import ServicesPage from "./pages/ServicesPage";
 import ProfessionalsPage from "./pages/ProfessionalsPage";
 import ClientsPage from "./pages/ClientsPage";
 import CalendarPage from "./pages/CalendarPage";
+import SettingsPage from "./pages/SettingsPage";
 
 export default function Router() {
   return (
@@ -15,6 +16,7 @@ export default function Router() {
           <Route path="/professionals" element={<ProfessionalsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -19,7 +19,7 @@ export default function ProfessionalCard({
    return (
       <div
          key={professional._id}
-         className="rounded-xl bg-jordy-blue-100 border-2 border-jordy-blue-200 p-4 flex flex-col justify-between shadow-md hover:scale-[101%] duration-200"
+         className="rounded-xl bg-jordy-blue-100 border-2 border-jordy-blue-200 p-4 flex flex-col justify-between shadow-md hover:shadow-xl duration-300"
       >
          <div>
             <div className="flex items-center justify-between">
