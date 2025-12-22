@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, UserCircle2 } from "lucide-react";
 import { useClients} from "../hooks/useClients";
 import { ClientForm } from "../components/clients/ClientForm";
 import type { Client } from "../types";
+import ClientCard from "../components/clients/ClientCard";
 
 export default function ClientsPage() {
   const {
@@ -21,16 +22,19 @@ export default function ClientsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-50">Clientes</h1>
-          <p className="text-sm text-slate-400">
-            Gestioná la base de clientes del negocio.
-          </p>
+        <div className="flex items-center gap-2">
+          <UserCircle2 className="w-6 h-6 text-jordy-blue-700"/>
+          <div>
+            <h1 className="text-2xl font-semibold text-jordy-blue-900">Clientes</h1>
+            <p className=" text-jordy-blue-600">
+              Gestioná la base de clientes del negocio.
+            </p>
+          </div>
         </div>
 
         <button
           onClick={() => setOpenCreate(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-sm font-medium px-3 py-2"
+          className="inline-flex items-center gap-2 rounded-lg bg-jordy-blue-700 hover:bg-jordy-blue-600 text-jordy-blue-200 font-medium px-3 py-2 duration-200"
         >
           <Plus className="w-4 h-4" />
           Nuevo cliente
@@ -52,54 +56,21 @@ export default function ClientsPage() {
 
       <div className="grid gap-3 md:grid-cols-2">
         {clients?.map(client => (
-          <div
-            key={client._id}
-            className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col justify-between"
-          >
-            <div>
-              <h2 className="text-sm font-medium text-slate-50">
-                {client.name}
-              </h2>
-              {client.email && (
-                <p className="text-xs text-slate-400">{client.email}</p>
-              )}
-              {client.phone && (
-                <p className="text-xs text-slate-400">{client.phone}</p>
-              )}
-              {client.notes && (
-                <p className="text-xs text-slate-400 mt-2 line-clamp-3">
-                  {client.notes}
-                </p>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setEditingClient(client)}
-                className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-800"
-              >
-                <Pencil className="w-3 h-3" />
-                Editar
-              </button>
-              <button
-                onClick={() => setDeletingClient(client)}
-                className="inline-flex items-center gap-1 rounded-lg border border-red-700/60 text-red-300 px-2 py-1 text-xs hover:bg-red-950/40"
-              >
-                <Trash2 className="w-3 h-3" />
-                Eliminar
-              </button>
-            </div>
-          </div>
+          <ClientCard 
+            client={client}
+            setEditingClient={setEditingClient}
+            setDeletingClient={setDeletingClient}
+          />
         ))}
       </div>
 
       {openCreate && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-slate-900 border border-slate-700 p-5 shadow-xl">
+          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl color text-jordy-blue-800">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-sm font-semibold">Nuevo cliente</h2>
+              <h2 className="text-2xl font-semibold">Nuevo cliente</h2>
               <button
-                className="text-xs text-slate-400 hover:text-slate-200"
+                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
                 onClick={() => setOpenCreate(false)}
               >
                 <X/>
@@ -118,11 +89,11 @@ export default function ClientsPage() {
 
       {editingClient && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-slate-900 border border-slate-700 p-5 shadow-xl">
+          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl color text-jordy-blue-800">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-sm font-semibold">Editar cliente</h2>
+              <h2 className="text-2xl font-semibold">Editar cliente</h2>
               <button
-                className="text-xs text-slate-400 hover:text-slate-200"
+                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
                 onClick={() => setEditingClient(null)}
               >
                 <X/>
@@ -145,16 +116,16 @@ export default function ClientsPage() {
 
       {deletingClient && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-sm rounded-xl bg-slate-900 border border-slate-700 p-5 shadow-xl">
-            <h2 className="text-sm font-semibold mb-2">Eliminar cliente</h2>
-            <p className="text-sm text-slate-300 mb-4">
-              ¿Seguro que querés eliminar{" "}
-              <span className="font-semibold">{deletingClient.name}</span>?
+          <div className="w-full max-w-sm rounded-xl bg-jordy-blue-300 text-jordy-blue-800 p-5 shadow-xl">
+            <h2 className="text-lg font-semibold mb-2">Eliminar cliente</h2>
+            <p className="text-sm mb-4">
+              ¿Seguro que querés eliminar a{" "}
+              <span className="font-bold text-jordy-blue-700">{deletingClient.name}</span>?
               Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end gap-2">
               <button
-                className="px-3 py-1.5 text-xs rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-800"
+              className="px-3 py-1.5 text-xs rounded-lg text-jordy-blue-200 bg-jordy-blue-600 hover:bg-jordy-blue-700 duration-200"
                 onClick={() => setDeletingClient(null)}
               >
                 Cancelar

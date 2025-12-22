@@ -48,15 +48,15 @@ export default function ServiceCard({service, setEditingService, setDeletingServ
 
         <div className="flex justify-end gap-2 mt-4 text-sm">
             <button
-            onClick={() => setEditingService(service)}
-            className="inline-flex items-center gap-1 rounded-lg py-1 px-3 bg-jordy-blue-700 border border-jordy-blue-700 text-jordy-blue-200 hover:text-jordy-blue-700 hover:bg-jordy-blue-200 duration-200"
+                onClick={() => setEditingService(service)}
+                className="inline-flex items-center gap-1 rounded-lg py-1 px-3 bg-jordy-blue-700 border border-jordy-blue-700 text-jordy-blue-200 hover:text-jordy-blue-700 hover:bg-jordy-blue-200 duration-200"
             >
             <Pencil className="w-3 h-3" />
             Editar
             </button>
             <button
-            onClick={() => setDeletingService(service)}
-            className="inline-flex items-center gap-1 rounded-lg py-1 px-3 bg-red-700 border border-red-700 text-red-200 hover:text-red-700 hover:bg-red-200 duration-200"
+                onClick={() => setDeletingService(service)}
+                className="inline-flex items-center gap-1 rounded-lg py-1 px-3 bg-red-700 border border-red-700 text-red-200 hover:text-red-700 hover:bg-red-200 duration-200"
             >
             <Trash2 className="w-3 h-3" />
             Eliminar

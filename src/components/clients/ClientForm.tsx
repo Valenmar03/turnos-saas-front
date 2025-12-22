@@ -34,12 +34,11 @@ export function ClientForm({ initialData, onSubmit, loading }: ClientFormProps) 
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
-      {/* Nombre */}
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">Nombre</label>
+        <label className="text-xl font-bold text-jordy-blue-800">Nombre</label>
         <input
           type="text"
-          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("name", {
             required: "El nombre es obligatorio",
             minLength: {
@@ -55,14 +54,13 @@ export function ClientForm({ initialData, onSubmit, loading }: ClientFormProps) 
         )}
       </div>
 
-      {/* Email */}
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
+        <label className="text-xl font-bold text-jordy-blue-800">
           Email (opcional)
         </label>
         <input
           type="email"
-          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("email", {
             pattern: {
               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -77,14 +75,13 @@ export function ClientForm({ initialData, onSubmit, loading }: ClientFormProps) 
         )}
       </div>
 
-      {/* Teléfono */}
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-300">
+        <label className="text-xl font-bold text-jordy-blue-800">
           Teléfono (opcional)
         </label>
         <input
           type="text"
-          className="w-full rounded-lg bg-slate-900 border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 border-slate-700"
+          className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
           {...register("phone", {
             minLength: {
               value: 6,
@@ -102,7 +99,7 @@ export function ClientForm({ initialData, onSubmit, loading }: ClientFormProps) 
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium py-2.5 mt-2"
+        className="w-full rounded-lg text-jordy-blue-200 text-lg bg-jordy-blue-600 hover:bg-jordy-blue-500 disabled:opacity-60 disabled:cursor-not-allowed font-medium py-2.5 mt-2 duration-200"
       >
         {loading ? "Guardando..." : "Guardar cliente"}
       </button>
