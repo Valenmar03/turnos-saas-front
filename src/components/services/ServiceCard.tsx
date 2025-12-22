@@ -14,7 +14,7 @@ export default function ServiceCard({service, setEditingService, setDeletingServ
   return (
     <div
         key={service._id}
-        className="rounded-xl bg-jordy-blue-300 p-4 flex flex-col justify-between"
+        className="rounded-xl bg-jordy-blue-100 border-2 border-jordy-blue-200 p-4 flex flex-col justify-between shadow-md hover:scale-[101%] duration-200"
     >
         <div>
             <div className="flex items-center justify-between">

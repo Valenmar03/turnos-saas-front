@@ -198,7 +198,7 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium py-2.5 mt-2"
+        className="w-full rounded-lg text-jordy-blue-200 text-lg bg-jordy-blue-600 hover:bg-jordy-blue-500 disabled:opacity-60 disabled:cursor-not-allowed font-medium py-2.5 mt-2 duration-200"
       >
         {loading ? "Guardando..." : "Guardar profesional"}
       </button>

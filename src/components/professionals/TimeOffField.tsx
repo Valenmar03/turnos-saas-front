@@ -1,6 +1,7 @@
 import type { FieldErrors } from "react-hook-form";
 import type { ProfessionalFormValues, TimeOff } from "../../types";
 import { toLocalInput } from "../../utils/dates";
+import { X } from "lucide-react";
 
 type TimeOffFieldProps = {
     addTimeOff: () => void
@@ -14,16 +15,18 @@ export default function TimeOffField({addTimeOff, errors, timeOff, updateTimeOff
   return (
     <div className="space-y-2 mt-4">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-medium text-slate-300">
-            Bloqueos / vacaciones
-            <span className="text-[11px] text-slate-400 ml-1">
+          <div>
+            <p className="text-lg font-bold text-jordy-blue-800">
+              Bloqueos / vacaciones
+            </p>
+            <span className="text-xs text-jordy-blue-600">
               (no se atiende en estos rangos)
             </span>
-          </p>
+          </div>
           <button
             type="button"
             onClick={addTimeOff}
-            className="text-[11px] px-2 py-1 rounded-md border border-slate-700 text-slate-200 hover:bg-slate-800"
+            className="px-2 py-1 rounded-md border bg-jordy-blue-200 border-jordy-blue-200 text-jordy-blue-900 hover:border-jordy-blue-500 duration-300"
           >
             + Agregar bloqueo
           </button>
@@ -36,7 +39,7 @@ export default function TimeOffField({addTimeOff, errors, timeOff, updateTimeOff
         </div>
 
         {timeOff.length === 0 && (
-          <p className="text-[11px] text-slate-500">
+          <p className="text-sm text-jordy-blue-800">
             No hay bloqueos configurados para este profesional.
           </p>
         )}
@@ -45,13 +48,13 @@ export default function TimeOffField({addTimeOff, errors, timeOff, updateTimeOff
           {timeOff.map((t, index) => (
             <div
               key={t._id || index}
-              className="grid grid-cols-1 md:grid-cols-[1fr,1fr,auto] gap-2 items-center rounded-lg border border-slate-800 bg-slate-900/60 p-2"
+              className="flex flex-col gap-2 rounded-lg border border-jordy-blue-200 bg-jordy-blue-200 p-2"
             >
               <div className="space-y-1">
-                <label className="text-[11px] text-slate-300">Inicio</label>
+                <label className=" text-jordy-blue-800">Inicio</label>
                 <input
                   type="datetime-local"
-                  className="w-full h-8 rounded-md bg-slate-950 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-400 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
                   value={toLocalInput(t.start)}
                   onChange={e =>
                     updateTimeOff(index, {
@@ -61,10 +64,10 @@ export default function TimeOffField({addTimeOff, errors, timeOff, updateTimeOff
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] text-slate-300">Fin</label>
+                <label className=" text-jordy-blue-800">Fin</label>
                 <input
                   type="datetime-local"
-                  className="w-full h-8 rounded-md bg-slate-950 border border-slate-700 px-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-400 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
                   value={toLocalInput(t.end)}
                   onChange={e =>
                     updateTimeOff(index, {
@@ -73,23 +76,26 @@ export default function TimeOffField({addTimeOff, errors, timeOff, updateTimeOff
                   }
                 />
               </div>
-              <div className="flex items-end gap-2">
-                <input
-                  type="text"
-                  placeholder="Motivo (opcional)"
-                  className="w-full h-8 rounded-md bg-slate-950 border border-slate-700 px-2 text-[11px] text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  value={t.reason ?? ""}
-                  onChange={e =>
-                    updateTimeOff(index, { reason: e.target.value })
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={() => removeTimeOff(index)}
-                  className="text-[11px] text-red-400 hover:text-red-300 px-2"
-                >
-                  X
-                </button>
+              <div className="space-y-1">
+                <label className=" text-jordy-blue-800">Motivo</label>
+                <div className="flex">
+                  <input
+                    type="text"
+                    placeholder="Motivo (opcional)"
+                    className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-400 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
+                    value={t.reason ?? ""}
+                    onChange={e =>
+                      updateTimeOff(index, { reason: e.target.value })
+                    }
+                    />
+                  <button
+                    type="button"
+                    onClick={() => removeTimeOff(index)}
+                    className="text-[11px] text-red-400 hover:text-red-300 px-2"
+                  >
+                    <X/>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
