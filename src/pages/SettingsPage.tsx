@@ -90,8 +90,6 @@ export default function SettingsPage() {
 
 
   const handleSave = () => {
-    // Acá lo mandás al backend.
-    // console.log(openingHours);
     alert("Configuración lista para guardar (mirá el state openingHours).");
   };
 
