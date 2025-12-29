@@ -45,7 +45,9 @@ export default function ClientCard({
           aria-haspopup="menu"
           aria-expanded={open}
         >
-          <MoreVertical className="w-5 h-5" />
+          <MoreVertical className={`w-5 h-5 transition-transform duration-150 ${
+              open ? "rotate-90" : "rotate-0"
+            }`}/>
         </button>
 
         {/* MENU (siempre montado para animar) */}

@@ -2,16 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Settings, Clock, Store } from "lucide-react";
 import toast from "react-hot-toast";
 import { useBusinesses } from "../hooks/useBusinesses";
-
-type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
-
-type DaySchedule = {
-  enabled: boolean;
-  startTime: string; // "09:00"
-  endTime: string;   // "20:00"
-};
-
-type OpeningHoursState = Record<DayKey, DaySchedule>;
+import type { DayKey, OpeningHours } from "../types";
 
 const DAYS: { key: DayKey; label: string }[] = [
   { key: "mon", label: "Lunes" },
@@ -23,32 +14,48 @@ const DAYS: { key: DayKey; label: string }[] = [
   { key: "sun", label: "Domingo" }
 ];
 
-const defaultOpeningHours: OpeningHoursState = {
-  mon: { enabled: true, startTime: "09:00", endTime: "20:00" },
-  tue: { enabled: true, startTime: "09:00", endTime: "20:00" },
-  wed: { enabled: true, startTime: "09:00", endTime: "20:00" },
-  thu: { enabled: true, startTime: "09:00", endTime: "20:00" },
-  fri: { enabled: true, startTime: "09:00", endTime: "20:00" },
-  sat: { enabled: true, startTime: "10:00", endTime: "14:00" },
-  sun: { enabled: false, startTime: "09:00", endTime: "20:00" }
+const defaultOpeningHours: OpeningHours = {
+  mon: { enabled: true, ranges: [{ startTime: "08:00", endTime: "13:00" }, { startTime: "14:00", endTime: "19:00" }] },
+  tue: { enabled: true, ranges: [{ startTime: "08:00", endTime: "13:00" }, { startTime: "14:00", endTime: "19:00" }] },
+  wed: { enabled: true, ranges: [{ startTime: "08:00", endTime: "13:00" }, { startTime: "14:00", endTime: "19:00" }] },
+  thu: { enabled: true, ranges: [{ startTime: "08:00", endTime: "13:00" }, { startTime: "14:00", endTime: "19:00" }] },
+  fri: { enabled: true, ranges: [{ startTime: "08:00", endTime: "13:00" }, { startTime: "14:00", endTime: "19:00" }] },
+  sat: { enabled: true, ranges: [{ startTime: "10:00", endTime: "14:00" }] },
+  sun: { enabled: false, ranges: [] }
 };
 
-const normalizeOpeningHours = (raw: any): OpeningHoursState => {
-  const base: OpeningHoursState = structuredClone(defaultOpeningHours);
+
+const normalizeOpeningHours = (raw: any): OpeningHours => {
+  const base: OpeningHours = JSON.parse(JSON.stringify(defaultOpeningHours));
+
   if (!raw || typeof raw !== "object") return base;
 
   (Object.keys(base) as DayKey[]).forEach((k) => {
-    if (raw[k]) {
+    const d = raw[k];
+    if (!d) return;
+
+    // ✅ si ya viene nuevo formato
+    if (Array.isArray(d.ranges)) {
       base[k] = {
-        enabled: Boolean(raw[k].enabled),
-        startTime: raw[k].startTime ?? base[k].startTime,
-        endTime: raw[k].endTime ?? base[k].endTime
+        enabled: typeof d.enabled === "boolean" ? d.enabled : base[k].enabled,
+        ranges: d.ranges.length
+          ? d.ranges.map((r: any) => ({
+              startTime: r.startTime ?? "08:00",
+              endTime: r.endTime ?? "13:00"
+            }))
+          : []
       };
+      return;
     }
+    base[k] = {
+      enabled: typeof d.enabled === "boolean" ? d.enabled : base[k].enabled,
+      ranges: d.startTime && d.endTime ? [{ startTime: d.startTime, endTime: d.endTime }] : base[k].ranges
+    };
   });
 
   return base;
 };
+
 
 function Toggle({
   checked,
@@ -110,7 +117,7 @@ export default function SettingsPage() {
     appointmentIntervalMin: 30
   });
 
-  const [openingHours, setOpeningHours] = useState<OpeningHoursState>(defaultOpeningHours);
+  const [openingHours, setOpeningHours] = useState<OpeningHours>(defaultOpeningHours);
 
   useEffect(() => {
     const b = businessQuery.data;
@@ -140,12 +147,63 @@ export default function SettingsPage() {
     }));
   };
 
-  const setTime = (day: DayKey, field: "startTime" | "endTime", value: string) => {
-    setOpeningHours((prev) => ({
-      ...prev,
-      [day]: { ...prev[day], [field]: value }
-    }));
+  const setRangeTime = (
+    day: DayKey,
+    rangeIndex: number,
+    field: "startTime" | "endTime",
+    value: string
+  ) => {
+    setOpeningHours((prev) => {
+      const next: OpeningHours = JSON.parse(JSON.stringify(prev));
+
+      // si no existe ese rango, lo creamos
+      if (!next[day].ranges[rangeIndex]) {
+        next[day].ranges[rangeIndex] = { startTime: "08:00", endTime: "13:00" };
+      }
+
+      next[day].ranges[rangeIndex][field] = value;
+      return next;
+    });
   };
+
+  const toggleLunch = (day: DayKey, withLunch: boolean) => {
+    setOpeningHours((prev) => {
+      const next: OpeningHours = JSON.parse(JSON.stringify(prev));
+      const current = next[day];
+
+      if (!withLunch) {
+        // ✅ pasar a 1 tramo
+        if (current.ranges.length >= 2) {
+          const r0 = current.ranges[0];
+          const r1 = current.ranges[1];
+
+          // une: start del primero + end del segundo
+          current.ranges = [{ startTime: r0.startTime, endTime: r1.endTime }];
+        } else if (current.ranges.length === 0) {
+          current.ranges = [{ startTime: "08:00", endTime: "19:00" }];
+        }
+      } else {
+        // ✅ pasar a 2 tramos (con default 08-13 / 14-19)
+        if (current.ranges.length === 0) {
+          current.ranges = [
+            { startTime: "08:00", endTime: "13:00" },
+            { startTime: "14:00", endTime: "19:00" }
+          ];
+        } else if (current.ranges.length === 1) {
+          const r = current.ranges[0];
+          current.ranges = [
+            { startTime: r.startTime ?? "08:00", endTime: "13:00" },
+            { startTime: "14:00", endTime: r.endTime ?? "19:00" }
+          ];
+        }
+        // si ya tiene 2+, no hacemos nada
+      }
+
+      return next;
+    });
+  };
+
+
 
   const handleSave = () => {
     if (!businessId) {
@@ -328,36 +386,75 @@ export default function SettingsPage() {
           <div className="space-y-3">
             {DAYS.map(({ key, label }) => {
               const day = openingHours[key];
+              const hasLunch = day.ranges.length >= 2;
 
               return (
                 <div key={key} className="rounded-lg bg-white border border-jordy-blue-200 px-4 py-3">
                   <div className="flex flex-col items-start xl:flex-row xl:items-center gap-3">
-                    <div className="flex justify-between w-full ">
+                    <div className="flex justify-between w-full">
                       <span className="font-medium text-jordy-blue-900">{label}</span>
                       <div className="flex justify-center">
                         <Toggle checked={day.enabled} onChange={() => toggleDay(key)} />
                       </div>
                     </div>
-                    <div className="flex justify-around w-full gap-5">
-                      <input
-                        type="time"
-                        value={day.enabled ? day.startTime : ""}
-                        onChange={(e) => setTime(key, "startTime", e.target.value)}
-                        className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
-                          ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
+
+                    {/* Rangos */}
+                    <div className="w-full space-y-2">
+                      {/* Rango 1 */}
+                      <div className="flex items-center justify-around w-full gap-5">
+                        <input
+                          type="time"
+                          value={day.enabled && day.ranges[0] ? day.ranges[0].startTime : ""}
+                          onChange={(e) => setRangeTime(key, 0, "startTime", e.target.value)}
+                          className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
+                            ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
                           disabled={!day.enabled}
                         />
-
-                      <span className="text-jordy-blue-600 text-center">-</span>
-
-                      <input
-                        type="time"
-                        value={day.enabled ? day.endTime : ""}
-                        onChange={(e) => setTime(key, "endTime", e.target.value)}
-                        className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
-                          ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
+                        <span className="text-jordy-blue-600 text-center">-</span>
+                        <input
+                          type="time"
+                          value={day.enabled && day.ranges[0] ? day.ranges[0].endTime : ""}
+                          onChange={(e) => setRangeTime(key, 0, "endTime", e.target.value)}
+                          className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
+                            ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
                           disabled={!day.enabled}
+                        />
+                      </div>
+
+                      {/* Toggle almuerzo */}
+                      <div className="mt-2 flex items-center justify-between rounded-md bg-jordy-blue-50 border border-jordy-blue-200 px-3 py-2">
+                        <span className="text-sm text-jordy-blue-800">Pausa de almuerzo</span>
+                        <Toggle
+                          checked={hasLunch}
+                          onChange={(next) => toggleLunch(key, next)}
+                          disabled={!day.enabled}
+                        />
+                      </div>
+
+                      {/* Rango 2 (almuerzo) */}
+                      {hasLunch && (
+                        <div className="flex items-center justify-around w-full gap-5">
+                          <input
+                            type="time"
+                            value={day.enabled ? day.ranges[1].startTime : ""}
+                            onChange={(e) => setRangeTime(key, 1, "startTime", e.target.value)}
+                            className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
+                              ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
+                            disabled={!day.enabled}
                           />
+
+                          <span className="text-jordy-blue-600 text-center">-</span>
+
+                          <input
+                            type="time"
+                            value={day.enabled ? day.ranges[1].endTime : ""}
+                            onChange={(e) => setRangeTime(key, 1, "endTime", e.target.value)}
+                            className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
+                              ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
+                            disabled={!day.enabled}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

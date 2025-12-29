@@ -147,10 +147,11 @@ export type BusinessForm = {
 
 export type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
+export type TimeRange = { startTime: string; endTime: string };
+
 export type DaySchedule = {
   enabled: boolean;
-  startTime: string;
-  endTime: string;
+  ranges: TimeRange[];
 };
 
 export type OpeningHours = Record<DayKey, DaySchedule>;
