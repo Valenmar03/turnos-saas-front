@@ -52,7 +52,7 @@ export default function ClientCard({
         <div
           role="menu"
           className={[
-            "absolute right-0 mt-2 w-40 rounded-lg bg-white border border-jordy-blue-200 shadow-lg z-20 overflow-hidden",
+            "absolute right-0 mt-2 w-40 rounded-lg bg-jordy-blue-50 border border-jordy-blue-200 shadow-lg z-20 overflow-hidden",
             "origin-top-right transform transition-all duration-150 ease-out",
             open
               ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
@@ -66,7 +66,7 @@ export default function ClientCard({
               setOpen(false);
               setEditingClient(client);
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-jordy-blue-800 hover:bg-jordy-blue-50 transition"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-jordy-blue-800 hover:bg-jordy-blue-200 transition"
           >
             <Pencil className="w-4 h-4" />
             Editar
@@ -79,7 +79,7 @@ export default function ClientCard({
               setOpen(false);
               setDeletingClient(client);
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-100 transition"
           >
             <Trash2 className="w-4 h-4" />
             Eliminar
