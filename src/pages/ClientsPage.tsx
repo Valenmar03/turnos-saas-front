@@ -117,21 +117,21 @@ export default function ClientsPage() {
       {deletingClient && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-sm rounded-xl bg-jordy-blue-300 text-jordy-blue-800 p-5 shadow-xl">
-            <h2 className="text-lg font-semibold mb-2">Eliminar cliente</h2>
-            <p className="text-sm mb-4">
+            <h2 className="text-xl font-semibold mb-2">Eliminar cliente</h2>
+            <p className="mb-4">
               ¿Seguro que querés eliminar a{" "}
               <span className="font-bold text-jordy-blue-700">{deletingClient.name}</span>?
               Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end gap-2">
               <button
-              className="px-3 py-1.5 text-xs rounded-lg text-jordy-blue-200 bg-jordy-blue-600 hover:bg-jordy-blue-700 duration-200"
+              className="px-3 py-1.5 text-sm rounded-lg text-jordy-blue-200 bg-jordy-blue-600 hover:bg-jordy-blue-700 duration-200"
                 onClick={() => setDeletingClient(null)}
               >
                 Cancelar
               </button>
               <button
-                className="px-3 py-1.5 text-xs rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
+                className="px-3 py-1.5 text-sm rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
                 onClick={async () => {
                   await deleteClientMutation.mutateAsync(deletingClient._id);
                   setDeletingClient(null);
