@@ -26,7 +26,7 @@ export default function ProfessionalsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Users className="w-6 h-6 text-jordy-blue-700"/>
           <div>
             <h1 className="text-2xl font-semibold text-jordy-blue-900">

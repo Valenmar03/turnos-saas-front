@@ -97,9 +97,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-jordy-blue-200">
           <Settings className="w-6 h-6 text-jordy-blue-700" />
-        </div>
         <div>
           <h1 className="text-2xl font-semibold text-jordy-blue-900">
             Administración
