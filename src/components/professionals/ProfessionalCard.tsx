@@ -75,7 +75,7 @@ export default function ProfessionalCard({
          <div className="flex justify-end gap-2 mt-4 ">
             <button
                onClick={() => setEditingProfessional(professional)}
-               className="inline-flex items-center gap-1 rounded-lg border bg-jordy-blue-200 border-jordy-blue-300 px-2 py-1 text-sm text-jordy-blue-800 hover:bg-jordy-blue-300 duration-200"
+               className="inline-flex items-center gap-1 rounded-lg py-1 px-3 bg-jordy-blue-700 border border-jordy-blue-700 text-jordy-blue-200 hover:text-jordy-blue-700 hover:bg-jordy-blue-200 duration-200"
             >
                <Pencil className="w-3 h-3" />
                Editar

@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Settings, Clock, Store } from "lucide-react";
+import toast from "react-hot-toast";
+import { useBusinesses } from "../hooks/useBusinesses";
 
 type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
@@ -29,6 +31,23 @@ const defaultOpeningHours: OpeningHoursState = {
   fri: { enabled: true, startTime: "09:00", endTime: "20:00" },
   sat: { enabled: true, startTime: "10:00", endTime: "14:00" },
   sun: { enabled: false, startTime: "09:00", endTime: "20:00" }
+};
+
+const normalizeOpeningHours = (raw: any): OpeningHoursState => {
+  const base: OpeningHoursState = structuredClone(defaultOpeningHours);
+  if (!raw || typeof raw !== "object") return base;
+
+  (Object.keys(base) as DayKey[]).forEach((k) => {
+    if (raw[k]) {
+      base[k] = {
+        enabled: Boolean(raw[k].enabled),
+        startTime: raw[k].startTime ?? base[k].startTime,
+        endTime: raw[k].endTime ?? base[k].endTime
+      };
+    }
+  });
+
+  return base;
 };
 
 function Toggle({
@@ -65,46 +84,106 @@ function Toggle({
   );
 }
 
+type BusinessForm = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  timezone: string;
+  isActive: boolean;
+  appointmentIntervalMin: number;
+};
+
 export default function SettingsPage() {
-  const [openingHours, setOpeningHours] = useState<OpeningHoursState>(
-    defaultOpeningHours
-  );
+  const { businessesQuery, businessByIdQuery, updateBusinessMutation } = useBusinesses();
+
+  const businessId = businessesQuery.data?.[0]?._id as string | undefined;
+  const businessQuery = businessByIdQuery(businessId);
+
+  const [businessForm, setBusinessForm] = useState<BusinessForm>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    timezone: "America/Argentina/Buenos_Aires",
+    isActive: true,
+    appointmentIntervalMin: 30
+  });
+
+  const [openingHours, setOpeningHours] = useState<OpeningHoursState>(defaultOpeningHours);
+
+  useEffect(() => {
+    const b = businessQuery.data;
+    if (!b) return;
+
+    setBusinessForm({
+      name: b.name ?? "",
+      email: b.email ?? "",
+      phone: b.phone ?? "",
+      address: b.address ?? "",
+      timezone: b.timezone ?? "America/Argentina/Buenos_Aires",
+      isActive: Boolean(b.isActive),
+      appointmentIntervalMin: Number(b.appointmentIntervalMin ?? 30)
+    });
+
+    setOpeningHours(normalizeOpeningHours(b.openingHours));
+  }, [businessQuery.data]);
 
   const enabledDaysCount = useMemo(() => {
-    return Object.values(openingHours).filter(d => d.enabled).length;
+    return Object.values(openingHours).filter((d) => d.enabled).length;
   }, [openingHours]);
 
   const toggleDay = (day: DayKey) => {
-    setOpeningHours(prev => ({
+    setOpeningHours((prev) => ({
       ...prev,
       [day]: { ...prev[day], enabled: !prev[day].enabled }
     }));
   };
 
   const setTime = (day: DayKey, field: "startTime" | "endTime", value: string) => {
-    setOpeningHours(prev => ({
+    setOpeningHours((prev) => ({
       ...prev,
       [day]: { ...prev[day], [field]: value }
     }));
   };
 
-
   const handleSave = () => {
-    alert("Configuración lista para guardar (mirá el state openingHours).");
+    if (!businessId) {
+      toast.error("No hay negocio para guardar.");
+      return;
+    }
+
+    const payload = {
+      ...businessForm,
+      openingHours
+    };
+
+    updateBusinessMutation.mutate({ id: businessId, data: payload });
   };
+
+  const isLoading = businessesQuery.isLoading || businessQuery.isLoading;
+  const isSaving = updateBusinessMutation.isPending;
+
+  if (isLoading) {
+    return <div className="p-6 text-jordy-blue-700">Cargando configuración…</div>;
+  }
+
+  if (businessesQuery.isError || businessQuery.isError) {
+    return (
+      <div className="p-6 text-red-600">
+        Error al cargar el negocio. Revisá la API / permisos.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* HEADER */}
       <div className="flex items-center gap-3">
-          <Settings className="w-6 h-6 text-jordy-blue-700" />
+        <Settings className="w-6 h-6 text-jordy-blue-700" />
         <div>
-          <h1 className="text-2xl font-semibold text-jordy-blue-900">
-            Administración
-          </h1>
-          <p className="text-sm text-jordy-blue-600">
-            Configuración general del negocio
-          </p>
+          <h1 className="text-2xl font-semibold text-jordy-blue-900">Administración</h1>
+          <p className="text-sm text-jordy-blue-600">Configuración general del negocio</p>
         </div>
       </div>
 
@@ -114,42 +193,47 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2 mb-4">
             <Store className="w-5 h-5 text-jordy-blue-700" />
             <div>
-              <h2 className="text-lg font-semibold text-jordy-blue-900">
-                Información del negocio
-              </h2>
-              <p className="text-sm text-jordy-blue-600">
-                Datos básicos de tu estética
-              </p>
+              <h2 className="text-lg font-semibold text-jordy-blue-900">Información del negocio</h2>
+              <p className="text-sm text-jordy-blue-600">Datos básicos de tu estética</p>
             </div>
           </div>
 
           <div className="space-y-4">
+            {/* Nombre */}
             <div>
               <label className="block text-sm font-medium text-jordy-blue-800 mb-1">
                 Nombre del negocio
               </label>
               <input
+                value={businessForm.name}
+                onChange={(e) => setBusinessForm((p) => ({ ...p, name: e.target.value }))}
                 className="w-full rounded-lg border border-jordy-blue-300 bg-white px-3 py-2 text-sm"
                 placeholder="Estética Belleza Natural"
               />
             </div>
 
+            {/* Dirección */}
             <div>
               <label className="block text-sm font-medium text-jordy-blue-800 mb-1">
                 Dirección
               </label>
               <input
+                value={businessForm.address}
+                onChange={(e) => setBusinessForm((p) => ({ ...p, address: e.target.value }))}
                 className="w-full rounded-lg border border-jordy-blue-300 bg-white px-3 py-2 text-sm"
                 placeholder="Calle Mayor 25"
               />
             </div>
 
+            {/* Teléfono + Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-jordy-blue-800 mb-1">
                   Teléfono
                 </label>
                 <input
+                  value={businessForm.phone}
+                  onChange={(e) => setBusinessForm((p) => ({ ...p, phone: e.target.value }))}
                   className="w-full rounded-lg border border-jordy-blue-300 bg-white px-3 py-2 text-sm"
                   placeholder="+54 11 1234 5678"
                 />
@@ -160,12 +244,49 @@ export default function SettingsPage() {
                   Email
                 </label>
                 <input
+                  value={businessForm.email}
+                  onChange={(e) => setBusinessForm((p) => ({ ...p, email: e.target.value }))}
                   className="w-full rounded-lg border border-jordy-blue-300 bg-white px-3 py-2 text-sm"
                   placeholder="info@negocio.com"
                 />
               </div>
             </div>
 
+            {/* Timezone + Activo */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-jordy-blue-800 mb-1">
+                  Zona horaria
+                </label>
+                <select
+                  value={businessForm.timezone}
+                  onChange={(e) => setBusinessForm((p) => ({ ...p, timezone: e.target.value }))}
+                  className="w-full rounded-lg border border-jordy-blue-300 bg-white px-3 py-2 text-sm"
+                >
+                  <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+                  <option value="America/Santiago">Chile (Santiago)</option>
+                  <option value="America/Montevideo">Uruguay (Montevideo)</option>
+                  <option value="America/Sao_Paulo">Brasil (São Paulo)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-jordy-blue-800 mb-1">
+                  Negocio activo
+                </label>
+                <div className="flex items-center gap-3 rounded-lg border border-jordy-blue-300 bg-white px-3 py-2">
+                  <Toggle
+                    checked={businessForm.isActive}
+                    onChange={(next) => setBusinessForm((p) => ({ ...p, isActive: next }))}
+                  />
+                  <span className="text-sm text-jordy-blue-800">
+                    {businessForm.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Intervalo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-jordy-blue-800 mb-1">
@@ -173,6 +294,15 @@ export default function SettingsPage() {
                 </label>
                 <input
                   type="number"
+                  min={5}
+                  step={5}
+                  value={businessForm.appointmentIntervalMin}
+                  onChange={(e) =>
+                    setBusinessForm((p) => ({
+                      ...p,
+                      appointmentIntervalMin: Number(e.target.value || 0)
+                    }))
+                  }
                   className="w-full rounded-lg border border-jordy-blue-300 bg-white px-3 py-2 text-sm"
                   placeholder="30"
                 />
@@ -181,14 +311,13 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* HORARIO DE APERTURA */}
         <div className="rounded-xl bg-jordy-blue-100 border border-jordy-blue-200 p-6 shadow-sm">
           <div className="flex items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-jordy-blue-700" />
               <div>
-                <h2 className="text-lg font-semibold text-jordy-blue-900">
-                  Horario de apertura
-                </h2>
+                <h2 className="text-lg font-semibold text-jordy-blue-900">Horario de apertura</h2>
                 <p className="text-sm text-jordy-blue-600">
                   Días habilitados: <span className="font-semibold">{enabledDaysCount}</span>
                 </p>
@@ -201,53 +330,40 @@ export default function SettingsPage() {
               const day = openingHours[key];
 
               return (
-                <div
-                  key={key}
-                  className="rounded-lg bg-white border border-jordy-blue-200 px-4 py-3"
-                >
-                  {/* Grid fija para alinear todo */}
-                  <div className="grid grid-cols-[120px_48px_110px_16px_110px] items-center gap-3">
-                    {/* Día */}
-                    <span className="font-medium text-jordy-blue-900">
-                      {label}
-                    </span>
-
-                    {/* Toggle centrado y con ancho fijo */}
-                    <div className="flex justify-center">
-                      <Toggle
-                        checked={day.enabled}
-                        onChange={() => toggleDay(key)}
-                      />
+                <div key={key} className="rounded-lg bg-white border border-jordy-blue-200 px-4 py-3">
+                  <div className="flex flex-col items-start xl:flex-row xl:items-center gap-3">
+                    <div className="flex justify-between w-full ">
+                      <span className="font-medium text-jordy-blue-900">{label}</span>
+                      <div className="flex justify-center">
+                        <Toggle checked={day.enabled} onChange={() => toggleDay(key)} />
+                      </div>
                     </div>
+                    <div className="flex justify-around w-full gap-5">
+                      <input
+                        type="time"
+                        value={day.enabled ? day.startTime : ""}
+                        onChange={(e) => setTime(key, "startTime", e.target.value)}
+                        className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
+                          ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
+                          disabled={!day.enabled}
+                        />
 
-                    {/* Start */}
-                    <input
-                      type="time"
-                      value={day.enabled ? day.startTime : ""}
-                      onChange={e => setTime(key, "startTime", e.target.value)}
-                      className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
-                        ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
-                      disabled={!day.enabled}
-                    />
+                      <span className="text-jordy-blue-600 text-center">-</span>
 
-                    {/* Separador centrado */}
-                    <span className="text-jordy-blue-600 text-center">-</span>
-
-                    {/* End (✅ acá iba endTime) */}
-                    <input
-                      type="time"
-                      value={day.enabled ? day.endTime : ""}
-                      onChange={e => setTime(key, "endTime", e.target.value)}
-                      className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
-                        ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
-                      disabled={!day.enabled}
-                    />
+                      <input
+                        type="time"
+                        value={day.enabled ? day.endTime : ""}
+                        onChange={(e) => setTime(key, "endTime", e.target.value)}
+                        className={`w-[110px] rounded-md border border-jordy-blue-300 px-2 py-1 text-sm
+                          ${!day.enabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
+                          disabled={!day.enabled}
+                          />
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
         </div>
       </div>
 
@@ -255,9 +371,10 @@ export default function SettingsPage() {
       <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="inline-flex items-center gap-2 rounded-lg bg-jordy-blue-700 hover:bg-jordy-blue-600 px-5 py-2 text-sm font-medium text-white shadow"
+          disabled={!businessId || isSaving}
+          className="inline-flex items-center gap-2 rounded-lg bg-jordy-blue-700 hover:bg-jordy-blue-600 disabled:opacity-60 disabled:cursor-not-allowed px-5 py-2 text-sm font-medium text-white shadow"
         >
-          Guardar configuración
+          {isSaving ? "Guardando..." : "Guardar configuración"}
         </button>
       </div>
     </div>

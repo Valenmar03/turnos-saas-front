@@ -1,3 +1,4 @@
+
 export const toLocalInput = (iso: string | undefined) => {
     if (!iso) return "";
     const d = new Date(iso);
@@ -20,3 +21,4 @@ export const toLocalInputValue = (date: Date) => {
     const minutes = pad(date.getMinutes());
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
+

@@ -132,3 +132,49 @@ export type ServiceFormValues = {
   allowOverlap: boolean;
   maxConcurrentAppointments: number;
 };
+
+
+// BUSINESSES
+
+export type BusinessForm = {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  timezone: string;
+  isActive: boolean;
+};
+
+export type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+export type DaySchedule = {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+};
+
+export type OpeningHours = Record<DayKey, DaySchedule>;
+
+export type Business = {
+  _id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  timezone: string;
+  isActive: boolean;
+
+  appointmentIntervalMin: number;
+  openingHours: OpeningHours;
+};
+
+export type BusinessPayload = {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  timezone: string;
+  isActive: boolean;
+  appointmentIntervalMin: number;
+  openingHours: OpeningHours;
+};
