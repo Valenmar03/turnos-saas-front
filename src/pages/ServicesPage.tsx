@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Plus, X, Scissors } from "lucide-react";
+import { Plus, Scissors } from "lucide-react";
 import { useServices } from "../hooks/useServices";
 import { ServiceForm } from "../components/services/ServiceForm";
 import type { Service } from "../types";
 import ServiceCard from "../components/services/ServiceCard";
+import { Modal } from "../components/Modal";
 
 export default function ServicesPage() {
   const {
@@ -60,65 +61,61 @@ export default function ServicesPage() {
         ))}
       </div>
 
-      {openCreate && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl color text-jordy-blue-800">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-2xl font-semibold">Nuevo servicio</h2>
-              <button
-                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
-                onClick={() => setOpenCreate(false)}
-              >
-                <X />
-              </button>
-            </div>
-            <ServiceForm
-              loading={createServiceMutation.isPending}
-              onSubmit={async data => {
-                await createServiceMutation.mutateAsync(data);
-                setOpenCreate(false);
-              }}
-            />
-          </div>
-        </div>
-      )}
+      <Modal
+        open={openCreate}
+        title="Nuevo servicio"
+        onClose={() => setOpenCreate(false)}
+        zIndex={80}
+        maxWidthClassName="max-w-md"
+      >
+        <ServiceForm
+          loading={createServiceMutation.isPending}
+          onSubmit={async (data) => {
+            await createServiceMutation.mutateAsync(data);
+            setOpenCreate(false);
+          }}
+        />
+      </Modal>
 
-      {editingService && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl text-jordy-blue-800">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-xl font-semibold">Editar servicio</h2>
-              <button
-                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
-                onClick={() => setEditingService(null)}
-              >
-                <X />
-              </button>
-            </div>
-            <ServiceForm
-              initialData={editingService}
-              loading={updateServiceMutation.isPending}
-              onSubmit={async data => {
-                await updateServiceMutation.mutateAsync({
-                  id: editingService._id,
-                  data
-                });
-                setEditingService(null);
-              }}
-            />
-          </div>
-        </div>
-      )}
+      <Modal
+        open={!!editingService}
+        title="Editar servicio"
+        onClose={() => setEditingService(null)}
+        zIndex={80}
+        maxWidthClassName="max-w-md"
+      >
+        {editingService && (
+          <ServiceForm
+            initialData={editingService}
+            loading={updateServiceMutation.isPending}
+            onSubmit={async (data) => {
+              await updateServiceMutation.mutateAsync({
+                id: editingService._id,
+                data,
+              });
+              setEditingService(null);
+            }}
+          />
+        )}
+      </Modal>
 
-      {deletingService && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-sm rounded-xl bg-jordy-blue-300 text-jordy-blue-800 p-5 shadow-xl">
-            <h2 className="text-xl font-semibold mb-2">Eliminar servicio</h2>
-            <p className="mb-4">
+      <Modal
+        open={!!deletingService}
+        title="Eliminar servicio"
+        onClose={() => setDeletingService(null)}
+        zIndex={80}
+        maxWidthClassName="max-w-sm"
+      >
+        {deletingService && (
+          <>
+            <p className="mb-4 text-sm text-jordy-blue-800">
               ¿Seguro que querés eliminar{" "}
-              <span className="font-bold text-jordy-blue-700">{deletingService.name}</span>?  
-              Esta acción no se puede deshacer.
+              <span className="font-bold text-jordy-blue-700">
+                {deletingService.name}
+              </span>
+              ? Esta acción no se puede deshacer.
             </p>
+
             <div className="flex justify-end gap-2">
               <button
                 className="px-3 py-1.5 text-sm rounded-lg text-jordy-blue-200 bg-jordy-blue-600 hover:bg-jordy-blue-700 duration-200"
@@ -126,6 +123,7 @@ export default function ServicesPage() {
               >
                 Cancelar
               </button>
+
               <button
                 className="px-3 py-1.5 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white disabled:opacity-60 duration-200"
                 onClick={async () => {
@@ -137,9 +135,11 @@ export default function ServicesPage() {
                 {deleteServiceMutation.isPending ? "Eliminando..." : "Eliminar"}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
+
+      
     </div>
   );
 }

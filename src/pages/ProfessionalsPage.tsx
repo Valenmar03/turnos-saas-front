@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Plus, Users, X } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { useProfessionals } from "../hooks/useProfessionals";
 import { useServices } from "../hooks/useServices";
 import { ProfessionalForm } from "../components/professionals/ProfessionalForm";
 import type { Professional } from "../types";
 import ProfessionalCard from "../components/professionals/ProfessionalCard";
+import { Modal } from "../components/Modal";
 
 export default function ProfessionalsPage() {
   const {
@@ -71,67 +72,68 @@ export default function ProfessionalsPage() {
         ))}
       </div>
 
-      {openCreate && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl color text-jordy-blue-800 max-h-[800px] overflow-auto">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-2xl font-semibold">Nuevo profesional</h2>
-              <button
-                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
-                onClick={() => setOpenCreate(false)}
-              >
-                <X />
-              </button>
-            </div>
-            <ProfessionalForm
-              servicesOptions={services || []}
-              loading={createProfessionalMutation.isPending}
-              onSubmit={async data => {
-                await createProfessionalMutation.mutateAsync(data);
-                setOpenCreate(false);
-              }}
-            />
-          </div>
+      <Modal
+        open={openCreate}
+        title="Nuevo profesional"
+        onClose={() => setOpenCreate(false)}
+        zIndex={80}
+        maxWidthClassName="max-w-md"
+      >
+        <div className="max-h-[800px] overflow-auto">
+          <ProfessionalForm
+            servicesOptions={services || []}
+            loading={createProfessionalMutation.isPending}
+            onSubmit={async (data) => {
+              await createProfessionalMutation.mutateAsync(data);
+              setOpenCreate(false);
+            }}
+          />
         </div>
-      )}
+      </Modal>
 
-      {editingProfessional && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl color text-jordy-blue-800 max-h-[800px] overflow-auto">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-2xl font-semibold">Editar profesional</h2>
-              <button
-                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
-                onClick={() => setEditingProfessional(null)}
-              >
-                <X />
-              </button>
-            </div>
+      <Modal
+        open={!!editingProfessional}
+        title="Editar profesional"
+        onClose={() => setEditingProfessional(null)}
+        zIndex={80}
+        maxWidthClassName="max-w-md"
+      >
+        {editingProfessional && (
+          <div className="max-h-[800px] overflow-y-auto pr-2">
             <ProfessionalForm
               initialData={editingProfessional}
               servicesOptions={services || []}
               loading={updateProfessionalMutation.isPending}
-              onSubmit={async data => {
+              onSubmit={async (data) => {
                 await updateProfessionalMutation.mutateAsync({
                   id: editingProfessional._id,
-                  data
+                  data,
                 });
                 setEditingProfessional(null);
               }}
             />
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
 
-      {deletingProfessional && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-sm rounded-xl bg-jordy-blue-300 text-jordy-blue-800 p-5 shadow-xl">
-            <h2 className="text-xl font-semibold mb-2">Eliminar profesional</h2>
-            <p className="mb-4">
+
+      <Modal
+        open={!!deletingProfessional}
+        title="Eliminar profesional"
+        onClose={() => setDeletingProfessional(null)}
+        zIndex={80}
+        maxWidthClassName="max-w-sm"
+      >
+        {deletingProfessional && (
+          <>
+            <p className="mb-4 text-sm text-jordy-blue-800">
               ¿Seguro que querés eliminar{" "}
-              <span className="font-bold text-jordy-blue-700 capitalize">{deletingProfessional.name}</span>?
-              Esta acción no se puede deshacer.
+              <span className="font-bold text-jordy-blue-700 capitalize">
+                {deletingProfessional.name}
+              </span>
+              ? Esta acción no se puede deshacer.
             </p>
+
             <div className="flex justify-end gap-2">
               <button
                 className="px-3 py-1.5 text-sm rounded-lg text-jordy-blue-200 bg-jordy-blue-600 hover:bg-jordy-blue-700 duration-200"
@@ -139,6 +141,7 @@ export default function ProfessionalsPage() {
               >
                 Cancelar
               </button>
+
               <button
                 className="px-3 py-1.5 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white disabled:opacity-60 duration-200"
                 onClick={async () => {
@@ -149,12 +152,15 @@ export default function ProfessionalsPage() {
                 }}
                 disabled={deleteProfessionalMutation.isPending}
               >
-                {deleteProfessionalMutation.isPending ? "Eliminando..." : "Eliminar"}
+                {deleteProfessionalMutation.isPending
+                  ? "Eliminando..."
+                  : "Eliminar"}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
+
     </div>
   );
 }
