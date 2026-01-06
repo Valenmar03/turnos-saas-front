@@ -45,7 +45,7 @@ export default function ServiceCard({
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="inline-flex items-center justify-center rounded-md p-1 text-jordy-blue-700 hover:bg-jordy-blue-200 transition
-                     opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                    opacity-100 md:opacity-0 md:group-hover:opacity-100"
           aria-haspopup="menu"
           aria-expanded={open}
         >

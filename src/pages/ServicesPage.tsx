@@ -54,9 +54,9 @@ export default function ServicesPage() {
         </p>
       )}
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
         {services?.map(service => (
-          <ServiceCard service={service} setEditingService={setEditingService} setDeletingService={setDeletingService}/>
+          <ServiceCard key={service._id} service={service} setEditingService={setEditingService} setDeletingService={setDeletingService}/>
         ))}
       </div>
 

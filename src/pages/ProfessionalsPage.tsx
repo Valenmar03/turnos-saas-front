@@ -60,9 +60,10 @@ export default function ProfessionalsPage() {
         </p>
       )}
 
-      <div className="grid gap-3 md:grid-cols-2">
-        {professionals!.map(professional => (
+      <div className="grid gap-3 xl:grid-cols-2">
+        {professionals?.map(professional => (
           <ProfessionalCard 
+            key={professional._id}
             professional={professional}
             setEditingProfessional={setEditingProfessional}
             setDeletingProfessional={setDeletingProfessional}
