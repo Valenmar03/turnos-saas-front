@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { CalendarDays, Plus, X, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, Plus, Trash2 } from "lucide-react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -13,6 +13,9 @@ import { useProfessionals } from "../hooks/useProfessionals";
 import { useClients } from "../hooks/useClients";
 import { AppointmentForm } from "../components/appointments/AppointmentForm";
 import { toLocalInputValue } from "../utils/dates";
+import { Modal } from "../components/Modal";
+import { resolveName, resolveServiceName } from "../utils/calendar";
+import AppointmentDetail from "../components/calendar/AppointmentDetail";
 
 export default function CalendarPage() {
   const {
@@ -20,7 +23,7 @@ export default function CalendarPage() {
     createAppointmentMutation,
     updateAppointmentMutation,
     cancelAppointmentMutation,
-    deleteAppointmentMutation
+    deleteAppointmentMutation,
   } = useAppointments();
 
   const { servicesQuery } = useServices();
@@ -28,11 +31,24 @@ export default function CalendarPage() {
   const { clientsQuery } = useClients();
 
   const [openCreate, setOpenCreate] = useState(false);
-  const [selectedStartLocal, setSelectedStartLocal] = useState<string | null>(null);
-  const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | "all">("all");
+  const [selectedStartLocal, setSelectedStartLocal] = useState<string | null>(
+    null
+  );
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<
+    string | "all"
+  >("all");
 
+  // Modal detalle
+  const [openDetail, setOpenDetail] = useState(false);
+  const [detailAppointmentId, setDetailAppointmentId] = useState<string | null>(
+    null
+  );
+
+  // Modal edición
   const [openEdit, setOpenEdit] = useState(false);
-  const [editingAppointmentId, setEditingAppointmentId] = useState<string | null>(null);
+  const [editingAppointmentId, setEditingAppointmentId] = useState<
+    string | null
+  >(null);
 
   const { data: appointments, isLoading, error } = appointmentsQuery;
   const { data: services = [] } = servicesQuery;
@@ -42,30 +58,19 @@ export default function CalendarPage() {
   const selectedProfessional =
     selectedProfessionalId === "all"
       ? null
-      : professionals?.find(p => p._id === selectedProfessionalId) ?? null;
-
-  const resolveName = (obj: any) => {
-    if (!obj) return "-";
-    if (typeof obj === "string") return obj;
-    return obj.name || obj.email || obj._id;
-  };
-
-  const resolveServiceName = (obj: any) => {
-    if (!obj) return "-";
-    if (typeof obj === "string") return obj;
-    return obj.name || obj._id;
-  };
+      : professionals?.find((p) => p._id === selectedProfessionalId) ?? null;
 
   const events = useMemo(
     () =>
       (appointments ?? [])
-        .filter(app =>
+        .filter((app) =>
           selectedProfessional
-            ? (app.professional && (app.professional as any)._id === selectedProfessional._id) ||
+            ? (app.professional &&
+                (app.professional as any)._id === selectedProfessional._id) ||
               app.professional === selectedProfessional._id
             : true
         )
-        .map(app => {
+        .map((app) => {
           const serviceName = resolveServiceName(app.service);
           const clientName = resolveName(app.client);
           const professionalName = resolveName(app.professional);
@@ -86,8 +91,8 @@ export default function CalendarPage() {
               client: app.client,
               professional: app.professional,
               service: app.service,
-              notes: app.notes
-            }
+              notes: app.notes,
+            },
           };
         }),
     [appointments, selectedProfessional]
@@ -98,12 +103,12 @@ export default function CalendarPage() {
       return true;
     }
 
-    return selectedProfessional.workingHours.map(wh => {
+    return selectedProfessional.workingHours.map((wh) => {
       const fcDay = wh.dayOfWeek % 7;
       return {
         daysOfWeek: [fcDay],
         startTime: wh.startTime,
-        endTime: wh.endTime
+        endTime: wh.endTime,
       };
     });
   }, [selectedProfessional]);
@@ -122,8 +127,8 @@ export default function CalendarPage() {
       overlap: true,
       extendedProps: {
         isTimeOff: true,
-        reason: t.reason
-      }
+        reason: t.reason,
+      },
     }));
   }, [selectedProfessional]);
 
@@ -138,19 +143,41 @@ export default function CalendarPage() {
     const isTimeOff = (arg.event.extendedProps as any)?.isTimeOff;
     if (isTimeOff) return;
 
-    setEditingAppointmentId(arg.event.id);
-    setOpenEdit(true);
+    setDetailAppointmentId(arg.event.id);
+    setOpenDetail(true);
   };
+
+  const detailAppointment = useMemo(() => {
+    if (!detailAppointmentId) return null;
+    return (appointments ?? []).find((a) => a._id === detailAppointmentId) ?? null;
+  }, [detailAppointmentId, appointments]);
 
   const editingAppointment = useMemo(() => {
     if (!editingAppointmentId) return null;
-    return (appointments ?? []).find(a => a._id === editingAppointmentId) ?? null;
+    return (appointments ?? []).find((a) => a._id === editingAppointmentId) ?? null;
   }, [editingAppointmentId, appointments]);
+
+  const closeDetailModal = () => {
+    setOpenDetail(false);
+    setDetailAppointmentId(null);
+  };
 
   const closeEditModal = () => {
     setOpenEdit(false);
     setEditingAppointmentId(null);
   };
+
+  // Cerrar con ESC
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (openDetail) closeDetailModal();
+      if (openEdit) closeEditModal();
+      if (openCreate) setOpenCreate(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [openDetail, openEdit, openCreate]);
 
   return (
     <div className="space-y-4">
@@ -161,7 +188,7 @@ export default function CalendarPage() {
             <h1 className="text-2xl font-semibold text-jordy-blue-900">
               Agenda de turnos
             </h1>
-            <p className=" text-jordy-blue-600">
+            <p className="text-jordy-blue-600">
               Vista de calendario semanal / diaria.
             </p>
           </div>
@@ -171,14 +198,14 @@ export default function CalendarPage() {
           <select
             className="rounded-lg bg-jordy-blue-200 border px-4 py-2 text-jordy-blue-900"
             value={selectedProfessionalId}
-            onChange={e =>
+            onChange={(e) =>
               setSelectedProfessionalId(
                 e.target.value === "all" ? "all" : e.target.value
               )
             }
           >
             <option value="all">Todos los profesionales</option>
-            {professionals?.map(p => (
+            {professionals?.map((p) => (
               <option key={p._id} value={p._id}>
                 {p.name}
               </option>
@@ -198,9 +225,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {isLoading && (
-        <p className="text-sm text-slate-400">Cargando turnos...</p>
-      )}
+      {isLoading && <p className="text-sm text-slate-400">Cargando turnos...</p>}
       {error && (
         <p className="text-sm text-red-400">
           Error cargando turnos. Revisá consola.
@@ -216,7 +241,7 @@ export default function CalendarPage() {
           headerToolbar={{
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay"
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
           allDaySlot={false}
           slotDuration="00:30:00"
@@ -232,92 +257,97 @@ export default function CalendarPage() {
           nowIndicator={true}
           height="auto"
           firstDay={1}
+          eventMinHeight={44}
+          eventShortHeight={44}
         />
       </div>
 
-      {openCreate && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl text-jordy-blue-800">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-2xl font-semibold">Nuevo turno</h2>
-              <button
-                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
-                onClick={() => setOpenCreate(false)}
-              >
-                <X />
-              </button>
-            </div>
-
-            <AppointmentForm
-              services={services}
-              professionals={professionals}
-              clients={clients}
-              loading={createAppointmentMutation.isPending}
-              initialStartLocal={selectedStartLocal || undefined}
-              onSubmit={async data => {
-                await createAppointmentMutation.mutateAsync(data);
-                setOpenCreate(false);
-                setSelectedStartLocal(null);
-              }}
+      <Modal
+          open={openCreate}
+          title="Nuevo turno"
+          onClose={() => setOpenCreate(false)}
+          zIndex={50}
+        >
+          <AppointmentForm
+            services={services}
+            professionals={professionals}
+            clients={clients}
+            loading={createAppointmentMutation.isPending}
+            initialStartLocal={selectedStartLocal || undefined}
+            onSubmit={async (data) => {
+              await createAppointmentMutation.mutateAsync(data);
+              setOpenCreate(false);
+              setSelectedStartLocal(null);
+            }}
+          />
+        </Modal>
+        <Modal
+          open={openDetail && !!detailAppointment}
+          title="Detalle del turno"
+          onClose={closeDetailModal}
+          zIndex={80}
+          maxWidthClassName="max-w-md"
+        >
+          {detailAppointment && (
+            <AppointmentDetail
+              detailAppointment={detailAppointment}
+              setEditingAppointmentId={setEditingAppointmentId}
+              setOpenEdit={setOpenEdit}
+              closeDetailModal={closeDetailModal}
             />
-          </div>
-        </div>
-      )}
+          )}
+        </Modal>
 
-      {openEdit && editingAppointment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-xl bg-jordy-blue-300 p-5 shadow-xl text-jordy-blue-800">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-2xl font-semibold">Editar turno</h2>
+        <Modal
+          open={openEdit && !!editingAppointment}
+          title="Editar turno"
+          onClose={closeEditModal}
+          zIndex={80}
+          maxWidthClassName="max-w-md"
+        >
+          {editingAppointment && (
+            <>
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <button
+                  className="px-3 py-2 rounded-lg bg-jordy-blue-500/80 hover:bg-jordy-blue-500 text-jordy-blue-950 text-sm font-medium disabled:opacity-60 duration-200"
+                  disabled={cancelAppointmentMutation.isPending}
+                  onClick={() => cancelAppointmentMutation.mutate(editingAppointment._id)}
+                >
+                  {cancelAppointmentMutation.isPending ? "Cancelando..." : "Cancelar turno"}
+                </button>
 
-              <button
-                className="text-xs text-jordy-blue-800 hover:text-jordy-blue-100 duration-100"
-                onClick={closeEditModal}
-              >
-                <X />
-              </button>
-            </div>
+                <button
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-medium disabled:opacity-60 duration-200"
+                  disabled={deleteAppointmentMutation.isPending}
+                  onClick={async () => {
+                    if (!window.confirm("¿Seguro que querés eliminar el turno?")) return;
+                    await deleteAppointmentMutation.mutateAsync(editingAppointment._id);
+                    closeEditModal();
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {deleteAppointmentMutation.isPending ? "Eliminando..." : "Eliminar"}
+                </button>
+              </div>
 
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <button
-                className="px-3 py-2 rounded-lg bg-jordy-blue-500/80 hover:bg-jordy-blue-500 text-jordy-blue-950 text-sm font-medium disabled:opacity-60 duration-200"
-                disabled={cancelAppointmentMutation.isPending}
-                onClick={() => cancelAppointmentMutation.mutate(editingAppointment._id)}
-              >
-                {cancelAppointmentMutation.isPending ? "Cancelando..." : "Cancelar turno"}
-              </button>
-
-              <button
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-medium disabled:opacity-60 duration-200"
-                disabled={deleteAppointmentMutation.isPending}
-                onClick={async () => {
-                  if (!window.confirm("¿Seguro que querés eliminar el turno?")) return;
-                  await deleteAppointmentMutation.mutateAsync(editingAppointment._id);
+              <AppointmentForm
+                services={services}
+                professionals={professionals}
+                clients={clients}
+                loading={updateAppointmentMutation.isPending}
+                initialData={editingAppointment}
+                onSubmit={async (data) => {
+                  await updateAppointmentMutation.mutateAsync({
+                    id: editingAppointment._id,
+                    data,
+                  });
                   closeEditModal();
                 }}
-              >
-                <Trash2 className="w-4 h-4" />
-                {deleteAppointmentMutation.isPending ? "Eliminando..." : "Eliminar"}
-              </button>
-            </div>
+              />
+            </>
+          )}
+        </Modal>
 
-            <AppointmentForm
-              services={services}
-              professionals={professionals}
-              clients={clients}
-              loading={updateAppointmentMutation.isPending}
-              initialData={editingAppointment}   
-              onSubmit={async data => {
-                await updateAppointmentMutation.mutateAsync({
-                  id: editingAppointment._id,
-                  data
-                });
-                closeEditModal();
-              }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
