@@ -33,14 +33,7 @@ export function ProfessionalForm({
       initialData?.services?.map(s => s._id) ?? []
   );
   
-  const {
-      register,
-      handleSubmit,
-      setError,
-      clearErrors,
-      reset,
-      formState: { errors }
-  } = useForm<ProfessionalFormValues>();
+  const { register, handleSubmit, watch, reset, setError, clearErrors, setValue, formState: { errors } } = useForm<ProfessionalFormValues>();
 
   useEffect(() => {
     if (initialData) {
@@ -174,6 +167,8 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
     <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
       <BasicFieldsForm
         register={register}
+        watch={watch}
+        setValue={setValue}
         errors={errors}
         servicesOptions={servicesOptions}
         selectedServices={selectedServices}

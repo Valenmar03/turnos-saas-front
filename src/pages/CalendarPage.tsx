@@ -219,16 +219,18 @@ export default function CalendarPage() {
             right: "dayGridMonth,timeGridWeek,timeGridDay"
           }}
           allDaySlot={false}
-          slotMinTime="08:00:00"
-          slotMaxTime="21:00:00"
+          slotDuration="00:30:00"
+          slotLabelInterval="01:00"
+          slotMinTime="05:00:00"
+          slotMaxTime="23:00:00"
           selectable={true}
           selectMirror={true}
           select={handleSelect}
           eventClick={handleEventClick}
           events={[...events, ...timeOffBackgroundEvents]}
           businessHours={businessHours}
-          height="auto"
           nowIndicator={true}
+          height="auto"
           firstDay={1}
         />
       </div>
