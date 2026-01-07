@@ -21,7 +21,7 @@ export default function AppointmentDetail(
     } : AppointmentDetailProps
 ) {
 
-    const { cancelAppointmentMutation, deleteAppointmentMutation } = useAppointments();
+    const { deleteAppointmentMutation } = useAppointments();
   return (
     <>
         <p className="text-sm text-jordy-blue-700 -mt-2 mb-4">
@@ -39,10 +39,10 @@ export default function AppointmentDetail(
             })}
         </p>
 
-        <div className="space-y-3 text-sm">
+        <div className="space-y-3">
             <div className="rounded-xl bg-white/60 border border-jordy-blue-200 p-3">
-                <p className="text-[11px] uppercase tracking-wide text-jordy-blue-700">
-                Servicio
+                <p className="text-xs uppercase tracking-wide text-jordy-blue-700">
+                    Servicio
                 </p>
                 <p className="font-semibold">
                 {resolveServiceName(detailAppointment.service)}
@@ -50,40 +50,32 @@ export default function AppointmentDetail(
             </div>
 
             <div className="rounded-xl bg-white/60 border border-jordy-blue-200 p-3">
-                <p className="text-[11px] uppercase tracking-wide text-jordy-blue-700">
+                <p className="text-xs uppercase tracking-wide text-jordy-blue-700">
                 Cliente
                 </p>
-                <p className="font-semibold">{resolveName(detailAppointment.client)}</p>
+                <p className="font-semibold capitalize">{resolveName(detailAppointment.client)}</p>
             </div>
 
             <div className="rounded-xl bg-white/60 border border-jordy-blue-200 p-3">
-                <p className="text-[11px] uppercase tracking-wide text-jordy-blue-700">
+                <p className="text-xs uppercase tracking-wide text-jordy-blue-700">
                 Profesional
                 </p>
-                <p className="font-semibold">
+                <p className="font-semibold capitalize">
                 {resolveName(detailAppointment.professional)}
                 </p>
             </div>
 
             {detailAppointment.notes && (
                 <div className="rounded-xl bg-white/60 border border-jordy-blue-200 p-3">
-                <p className="text-[11px] uppercase tracking-wide text-jordy-blue-700">
+                <p className="text-xs uppercase tracking-wide text-jordy-blue-700">
                     Notas
                 </p>
                 <p className="whitespace-pre-wrap">{detailAppointment.notes}</p>
                 </div>
             )}
-            </div>
+        </div>
 
-            <div className="mt-5 flex items-center justify-between gap-2">
-            <button
-                className="px-3 py-2 rounded-lg bg-jordy-blue-500/80 hover:bg-jordy-blue-500 text-jordy-blue-950 text-sm font-medium disabled:opacity-60 duration-200"
-                disabled={cancelAppointmentMutation.isPending}
-                onClick={() => cancelAppointmentMutation.mutate(detailAppointment._id)}
-            >
-                {cancelAppointmentMutation.isPending ? "Cancelando..." : "Cancelar"}
-            </button>
-
+        <div className="mt-5 flex items-center justify-end gap-2">
             <div className="flex items-center gap-2">
                 <button
                 className="px-3 py-2 rounded-lg bg-jordy-blue-700 hover:bg-jordy-blue-600 text-jordy-blue-100 text-sm font-medium duration-200"

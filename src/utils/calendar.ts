@@ -10,8 +10,6 @@ export const defaultOpeningHours: OpeningHours = {
   sun: { enabled: false, ranges: [] }
 };
 
-
-
 export const normalizeOpeningHours = (
   raw: Partial<OpeningHours> | undefined | null
 ): OpeningHours => {
@@ -44,6 +42,19 @@ export const normalizeOpeningHours = (
 
   return base;
 };
+
+export const DAYKEY_TO_FC: Record<DayKey, number> = {
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+};
+
+export const isValidTime = (t?: string) =>
+  !!t && /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(t);
 
 
 

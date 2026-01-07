@@ -73,10 +73,11 @@
   background-color: #f1f6fd;
 }
 
+
+
 /* =========================
    FIN DE SEMANA
    ========================= */
-.fc-day-sun,
 .fc-day-sat {
   background-color: #f8fafc;
 }

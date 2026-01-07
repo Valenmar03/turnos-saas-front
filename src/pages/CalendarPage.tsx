@@ -14,8 +14,10 @@ import { useClients } from "../hooks/useClients";
 import { AppointmentForm } from "../components/appointments/AppointmentForm";
 import { toLocalInputValue } from "../utils/dates";
 import { Modal } from "../components/Modal";
-import { resolveName, resolveServiceName } from "../utils/calendar";
-import AppointmentDetail from "../components/calendar/AppointmentDetail";
+import { DAYKEY_TO_FC, isValidTime, resolveName, resolveServiceName } from "../utils/calendar";
+import AppointmentDetail from "../components/appointments/AppointmentDetail";
+import type { DayKey } from "../types";
+import { useBusinesses } from "../hooks/useBusinesses";
 
 export default function CalendarPage() {
   const {
@@ -38,13 +40,12 @@ export default function CalendarPage() {
     string | "all"
   >("all");
 
-  // Modal detalle
   const [openDetail, setOpenDetail] = useState(false);
   const [detailAppointmentId, setDetailAppointmentId] = useState<string | null>(
     null
   );
+  
 
-  // Modal edición
   const [openEdit, setOpenEdit] = useState(false);
   const [editingAppointmentId, setEditingAppointmentId] = useState<
     string | null
@@ -98,20 +99,40 @@ export default function CalendarPage() {
     [appointments, selectedProfessional]
   );
 
-  const businessHours = useMemo(() => {
-    if (!selectedProfessional || !selectedProfessional.workingHours?.length) {
-      return true;
-    }
+  const { businessesQuery } = useBusinesses()
+  const selectedBusiness = businessesQuery.data?.[0];
 
-    return selectedProfessional.workingHours.map((wh) => {
-      const fcDay = wh.dayOfWeek % 7;
-      return {
-        daysOfWeek: [fcDay],
-        startTime: wh.startTime,
-        endTime: wh.endTime,
-      };
+  const businessHours = useMemo(() => {
+    const openingHours = selectedBusiness?.openingHours; 
+    if (!openingHours) return false; 
+
+    const blocks: Array<{
+      daysOfWeek: number[];
+      startTime: string;
+      endTime: string;
+    }> = [];
+
+    (Object.keys(openingHours) as DayKey[]).forEach((dayKey) => {
+      const day = openingHours[dayKey];
+      if (!day?.enabled) return;
+
+      const fcDay = DAYKEY_TO_FC[dayKey];
+
+      for (const r of day.ranges ?? []) {
+        if (!isValidTime(r.startTime) || !isValidTime(r.endTime)) continue;
+
+        blocks.push({
+          daysOfWeek: [fcDay],
+          startTime: r.startTime,
+          endTime: r.endTime,
+        });
+      }
     });
-  }, [selectedProfessional]);
+
+    // Si el negocio no tiene rangos válidos, no forzar gris (o podés poner true si querés todo habilitado)
+    return blocks.length ? blocks : false;
+  }, [selectedBusiness]);
+
 
   const timeOffBackgroundEvents = useMemo(() => {
     if (!selectedProfessional || !selectedProfessional.timeOff?.length) {
@@ -246,8 +267,8 @@ export default function CalendarPage() {
           allDaySlot={false}
           slotDuration="00:30:00"
           slotLabelInterval="01:00"
-          slotMinTime="05:00:00"
-          slotMaxTime="23:00:00"
+          slotMinTime="06:00:00"
+          slotMaxTime="21:00:00"
           selectable={true}
           selectMirror={true}
           select={handleSelect}

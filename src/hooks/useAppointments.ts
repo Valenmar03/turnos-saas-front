@@ -50,7 +50,7 @@ export function useAppointments() {
 
   const updateAppointmentMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
-      api.patch(`/appointments/${id}`, data),
+      api.put(`/appointments/${id}`, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["appointments"] })
   });
 
