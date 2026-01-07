@@ -1,6 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
-import type { Appointment, AppointmentFormValues, AppointmentPayload, Client, Professional, Service } from "../../types";
+import type {
+  Appointment,
+  AppointmentFormValues,
+  AppointmentPayload,
+  Client,
+  Professional,
+  Service
+} from "../../types";
 import { toLocalInputValue } from "../../utils/dates";
 
 interface AppointmentFormProps {
@@ -48,6 +55,7 @@ export function AppointmentForm({
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors }
   } = useForm<AppointmentFormValues>({
     defaultValues
@@ -58,6 +66,37 @@ export function AppointmentForm({
       setValue("startLocal", initialStartLocal);
     }
   }, [initialStartLocal, setValue]);
+
+  const selectedProfessionalId = watch("professionalId");
+  const selectedServiceId = watch("serviceId");
+
+  const selectedProfessional = useMemo(() => {
+    if (!selectedProfessionalId) return null;
+    return professionals.find(p => p._id === selectedProfessionalId) ?? null;
+  }, [selectedProfessionalId, professionals]);
+
+  const availableServices = useMemo(() => {
+    if (!selectedProfessional) return [];
+    const profServiceIds =
+      selectedProfessional.services?.map((s: any) =>
+        typeof s === "string" ? s : s?._id
+      ) ?? [];
+
+
+    return services.filter(s => profServiceIds.includes(s._id));
+  }, [selectedProfessional, services]);
+
+  useEffect(() => {
+    if (!selectedProfessionalId) {
+      if (selectedServiceId) setValue("serviceId", "");
+      return;
+    }
+
+    if (selectedServiceId) {
+      const ok = availableServices.some(s => s._id === selectedServiceId);
+      if (!ok) setValue("serviceId", "");
+    }
+  }, [selectedProfessionalId, selectedServiceId, availableServices, setValue]);
 
   const onValidSubmit = async (values: AppointmentFormValues) => {
     const startDate = new Date(values.startLocal);
@@ -72,6 +111,8 @@ export function AppointmentForm({
 
     await onSubmit(payload);
   };
+
+  const serviceDisabled = !selectedProfessionalId;
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onValidSubmit)}>
@@ -125,18 +166,25 @@ export function AppointmentForm({
         <div className="space-y-1">
           <label className="text-xl font-bold text-jordy-blue-800">Servicio</label>
           <select
-            className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
+            className={`w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500 ${
+              serviceDisabled ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={serviceDisabled}
             {...register("serviceId", {
               required: "Seleccioná un servicio"
             })}
           >
-            <option value="">Seleccionar servicio...</option>
-            {services.map(s => (
+            <option value="">
+              {serviceDisabled ? "Seleccioná un profesional primero..." : "Seleccionar servicio..."}
+            </option>
+
+            {availableServices.map(s => (
               <option key={s._id} value={s._id}>
                 {s.name} ({s.durationMinutes} min)
               </option>
             ))}
           </select>
+
           {errors.serviceId && (
             <p className="text-[11px] text-red-400 mt-1">
               {errors.serviceId.message}
