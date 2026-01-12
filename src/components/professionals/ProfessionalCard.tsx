@@ -15,6 +15,7 @@ export default function ProfessionalCard({
 }: ProfessionalCardProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  console.log(professional)
 
   useEffect(() => {
     const onMouseDown = (e: MouseEvent) => {
@@ -55,8 +56,7 @@ export default function ProfessionalCard({
             }`}
           />
         </button>
-
-        {/* MENU smooth (siempre montado) */}
+        
         <div
           role="menu"
           className={[
@@ -99,14 +99,14 @@ export default function ProfessionalCard({
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg capitalize font-medium text-jordy-blue-900">
-              {professional.name}
+              {professional.userId.name}
             </h2>
 
-            {professional.email && (
-              <p className="text-sm text-jordy-blue-500">{professional.email}</p>
+            {professional.userId.email && (
+              <p className="text-sm text-jordy-blue-500">{professional.userId.email}</p>
             )}
-            {professional.phone && (
-              <p className="text-sm text-jordy-blue-500">{professional.phone}</p>
+            {professional.userId.phone && (
+              <p className="text-sm text-jordy-blue-500">{professional.userId.phone}</p>
             )}
           </div>
 

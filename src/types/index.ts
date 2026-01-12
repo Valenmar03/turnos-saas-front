@@ -22,6 +22,7 @@ export interface TimeOff {
 
 export interface Professional {
   _id: string;
+  userId: User;
   name: string;
   email?: string;
   phone?: string;
@@ -31,6 +32,8 @@ export interface Professional {
   workingHours?: WorkingHour[];   
   timeOff?: TimeOff[];
 }
+
+
 
 export interface ProfessionalPayload {
   name: string;
@@ -179,3 +182,17 @@ export type BusinessPayload = {
   appointmentIntervalMin: number;
   openingHours: OpeningHours;
 };
+
+
+
+// USERS
+
+export interface User {
+  _id: string;
+  role: string;
+  name: string; 
+  isBookable:string;
+  isActive: string;
+  email: string;
+  phone: string;
+}
