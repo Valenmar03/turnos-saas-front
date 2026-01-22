@@ -36,13 +36,13 @@ export default function BasicFieldsForm({
         <input
           type="text"
           className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
-          {...register("name", {
+          {...register("user.name", {
             required: "El nombre es obligatorio",
             minLength: { value: 2, message: "Debe tener al menos 2 caracteres" },
           })}
         />
-        {errors.name && (
-          <p className="text-[11px] text-red-400 mt-1">{errors.name.message}</p>
+        {errors.user?.name && (
+          <p className="text-[11px] text-red-400 mt-1">{errors.user.name.message}</p>
         )}
       </div>
 
@@ -52,7 +52,7 @@ export default function BasicFieldsForm({
           <input
             type="email"
             className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
-            {...register("email", {
+            {...register("user.email", {
               required: "El email es obligatorio",
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -60,9 +60,9 @@ export default function BasicFieldsForm({
               },
             })}
           />
-          {errors.email && (
+          {errors.user?.email && (
             <p className="text-[11px] text-red-400 mt-1">
-              {errors.email.message}
+              {errors.user.email.message}
             </p>
           )}
         </div>
@@ -74,14 +74,14 @@ export default function BasicFieldsForm({
           <input
             type="text"
             className="w-full rounded-lg bg-jordy-blue-200 border border-jordy-blue-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jordy-blue-500"
-            {...register("phone", {
+            {...register("user.phone", {
               required: "El telefono es obligatorio",
               minLength: { value: 6, message: "Demasiado corto" },
             })}
           />
-          {errors.phone && (
+          {errors.user?.phone && (
             <p className="text-[11px] text-red-400 mt-1">
-              {errors.phone.message}
+              {errors.user.phone.message}
             </p>
           )}
         </div>

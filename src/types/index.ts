@@ -1,50 +1,52 @@
 //PROFESSIONALS
 export type ProfessionalFormValues = {
-  name: string;
-  email?: string;
-  phone?: string;
+  user: {
+    name: string;
+    email?: string;
+    phone?: string;
+  };
   color: string;
   allowOverlap: boolean;
 };
 
 export interface WorkingHour {
-  dayOfWeek: number;
-  startTime: string;
-  endTime: string;
+  dayOfWeek: number; 
+  startTime: string; 
+  endTime: string;   
 }
 
 export interface TimeOff {
   _id?: string;
-  start: string;  
-  end: string;     
+  start: string; 
+  end: string;   
   reason?: string;
 }
 
 export interface Professional {
   _id: string;
-  userId: User;
-  name: string;
-  email?: string;
-  phone?: string;
-  services?: { _id: string; name: string }[];
+  userId: User; 
+  business: string; 
+  services?: { _id: string; name: string }[]; 
   color?: string;
   allowOverlap?: boolean;
-  workingHours?: WorkingHour[];   
+  workingHours?: WorkingHour[];
   timeOff?: TimeOff[];
 }
 
-
-
 export interface ProfessionalPayload {
-  name: string;
-  email?: string;
-  phone?: string;
   services?: string[];
   color?: string;
   allowOverlap?: boolean;
-  workingHours?: WorkingHour[];   
+  workingHours?: WorkingHour[];
   timeOff?: TimeOff[];
 }
+
+export interface ProfessionalUserPayload {
+  name: string;
+  email?: string;
+  phone?: string;
+}
+
 
 
 // APPOINTMENTS

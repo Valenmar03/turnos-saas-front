@@ -33,28 +33,27 @@ export function ProfessionalForm({
       initialData?.services?.map(s => s._id) ?? []
   );
   
-  const { register, handleSubmit, watch, reset, setError, clearErrors, setValue, formState: { errors } } = useForm<ProfessionalFormValues>();
+  const { register, handleSubmit, watch, reset, setError, clearErrors, setValue, formState: { errors } } =
+  useForm<ProfessionalFormValues>();
 
   useEffect(() => {
     if (initialData) {
       reset({
-        name: initialData.name ?? "",
-        email: initialData.email ?? "",
-        phone: initialData.phone ?? "",
+        user: {
+          name: initialData.userId?.name ?? "",
+          email: initialData.userId?.email ?? "",
+          phone: initialData.userId?.phone ?? "",
+        },
         color: initialData.color ?? "#6366f1",
         allowOverlap: initialData.allowOverlap ?? false,
       });
 
       setSelectedServices(initialData.services?.map(s => s._id) ?? []);
-
       setWorkingHours(initialData.workingHours ?? []);
-
       setTimeOff(initialData.timeOff ?? []);
     } else {
       reset({
-        name: "",
-        email: "",
-        phone: "",
+        user: { name: "", email: "", phone: "" },
         color: "#6366f1",
         allowOverlap: false,
       });
@@ -63,6 +62,7 @@ export function ProfessionalForm({
       setTimeOff([]);
     }
   }, [initialData, reset]);
+
 
 
 const handleChangeHour = (day: number, patch: Partial<WorkingHour>) => {
@@ -148,19 +148,15 @@ const getHourForDay = (day: number, field: "startTime" | "endTime") => {
     clearErrors("root.timeoff");
 
     const payload: ProfessionalPayload = {
-      name: values.name.trim(),
-      email: values.email?.trim() || undefined,
-      phone: values.phone?.trim() || undefined,
       color: values.color,
       services: selectedServices,
       allowOverlap: values.allowOverlap,
-      workingHours: workingHours.filter(
-        w => w.startTime && w.endTime
-      ),
-      timeOff: timeOff.filter(t => t.start && t.end)
+      workingHours: workingHours.filter(w => w.startTime && w.endTime),
+      timeOff: timeOff.filter(t => t.start && t.end),
     };
 
     onSubmit(payload);
+
   };
 
   return (
