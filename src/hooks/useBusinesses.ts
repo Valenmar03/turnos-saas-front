@@ -10,7 +10,7 @@ export function useBusinesses() {
   const businessesQuery = useQuery({
     queryKey: ["businesses"],
     queryFn: async () => {
-      const res = await api.get("/business"); // GET /api/business
+      const res = await api.get("/business"); 
       return res.data.businesses as Business[];
     }
   });
@@ -20,10 +20,19 @@ export function useBusinesses() {
       queryKey: ["businesses", id],
       enabled: !!id,
       queryFn: async () => {
-        const res = await api.get(`/business/${id}`); // GET /api/business/:id
+        const res = await api.get(`/business/${id}`); 
         return res.data.business as Business;
       }
     });
+
+  const myBusinessQuery = useQuery({
+    queryKey: ["my-business"],
+    queryFn: async () => {
+      const res = await api.get("/business/me");
+      return res.data.business as Business;
+    },
+  });
+
 
   const createBusinessMutation = useMutation({
     mutationFn: async (data: BusinessPayload) => {
@@ -68,11 +77,13 @@ export function useBusinesses() {
     }
   });
 
+
   return {
     businessesQuery,
     businessByIdQuery,
     createBusinessMutation,
     updateBusinessMutation,
-    deleteBusinessMutation
+    deleteBusinessMutation,
+    myBusinessQuery
   };
 }

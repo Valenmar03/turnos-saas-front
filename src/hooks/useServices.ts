@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, CURRENT_BUSINESS_ID } from "../api/axios";
+import { api } from "../api/axios";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../utils/errors";
 import type { Service, ServicePayload } from "../types";
@@ -9,7 +9,6 @@ import type { Service, ServicePayload } from "../types";
 export function useServices() {
   const queryClient = useQueryClient();
 
-  // GET
   const servicesQuery = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
@@ -18,12 +17,10 @@ export function useServices() {
     }
   });
 
-  // CREATE
   const createServiceMutation = useMutation({
     mutationFn: async (data: ServicePayload) => {
       const payload = {
-        ...data,
-        business: CURRENT_BUSINESS_ID
+        ...data
       };
       const res = await api.post("/services", payload);
       return res.data;
@@ -37,7 +34,6 @@ export function useServices() {
   }
   });
 
-  // UPDATE
   const updateServiceMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ServicePayload }) => {
       const res = await api.put(`/services/${id}`, data);

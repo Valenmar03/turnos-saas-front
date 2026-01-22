@@ -102,10 +102,11 @@ type BusinessForm = {
 };
 
 export default function SettingsPage() {
-  const { businessesQuery, businessByIdQuery, updateBusinessMutation } = useBusinesses();
+  const { myBusinessQuery, updateBusinessMutation } = useBusinesses();
 
-  const businessId = businessesQuery.data?.[0]?._id as string | undefined;
-  const businessQuery = businessByIdQuery(businessId);
+  const businessId = myBusinessQuery.data?._id as string | undefined;
+  const businessQuery = myBusinessQuery;
+
 
   const [businessForm, setBusinessForm] = useState<BusinessForm>({
     name: "",
@@ -219,20 +220,21 @@ export default function SettingsPage() {
     updateBusinessMutation.mutate({ id: businessId, data: payload });
   };
 
-  const isLoading = businessesQuery.isLoading || businessQuery.isLoading;
+  const isLoading = businessQuery.isLoading;
   const isSaving = updateBusinessMutation.isPending;
 
   if (isLoading) {
     return <div className="p-6 text-jordy-blue-700">Cargando configuración…</div>;
   }
 
-  if (businessesQuery.isError || businessQuery.isError) {
+  if (businessQuery.isError) {
     return (
       <div className="p-6 text-red-600">
         Error al cargar el negocio. Revisá la API / permisos.
       </div>
     );
-  }
+}
+
 
   return (
     <div className="space-y-6">

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, CURRENT_BUSINESS_ID } from "../api/axios";
+import { api} from "../api/axios";
 import { getErrorMessage } from "../utils/errors";
 import toast from "react-hot-toast";
 import type { Client, ClientPayload } from "../types";
@@ -20,8 +20,7 @@ export function useClients() {
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientPayload) => {
       const payload = {
-        ...data,
-        business: CURRENT_BUSINESS_ID
+        ...data
       };
       const res = await api.post("/clients", payload);
       return res.data;

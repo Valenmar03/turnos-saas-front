@@ -34,5 +34,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-export const CURRENT_BUSINESS_ID = "69650f36e04fea3a73791ff0"

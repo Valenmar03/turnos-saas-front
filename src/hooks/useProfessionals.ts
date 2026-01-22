@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, CURRENT_BUSINESS_ID } from "../api/axios";
+import { api } from "../api/axios";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../utils/errors";
 import type { Professional, ProfessionalPayload } from "../types";
@@ -18,8 +18,7 @@ export function useProfessionals() {
   const createProfessionalMutation = useMutation({
     mutationFn: async (data: ProfessionalPayload) => {
       const payload = {
-        ...data,
-        business: CURRENT_BUSINESS_ID
+        ...data 
       };
       const res = await api.post("/professionals", payload);
       return res.data;
