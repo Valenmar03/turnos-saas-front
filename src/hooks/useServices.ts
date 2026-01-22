@@ -55,7 +55,7 @@ export function useServices() {
   // DELETE
   const deleteServiceMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.delete(`/services/${id}`);
+      const res = await api.patch(`/services/${id}/delete`);
       return res.data;
     },
     onSuccess: () => {
@@ -67,10 +67,16 @@ export function useServices() {
     }
   });
 
+  const activateServiceMutation = useMutation({
+  mutationFn: (id: string) => api.patch(`/services/${id}/activate`),
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: ["services"] }),
+});
+
   return {
     servicesQuery,
     createServiceMutation,
     updateServiceMutation,
-    deleteServiceMutation
+    deleteServiceMutation,
+    activateServiceMutation
   };
 }

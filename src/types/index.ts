@@ -115,6 +115,7 @@ export interface Service {
   color?: string;
   allowOverlap?: boolean;
   maxConcurrentAppointments?: number;
+  isActive: boolean
 }
 
 export interface ServicePayload {

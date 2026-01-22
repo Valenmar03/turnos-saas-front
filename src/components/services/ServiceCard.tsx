@@ -1,4 +1,4 @@
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil, RotateCcwKey, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import type { Service } from "../../types";
 
@@ -6,12 +6,14 @@ type ServiceCardProps = {
   service: Service;
   setEditingService: React.Dispatch<React.SetStateAction<Service | null>>;
   setDeletingService: React.Dispatch<React.SetStateAction<Service | null>>;
+  setActivatingService: React.Dispatch<React.SetStateAction<Service | null>>;
 };
 
 export default function ServiceCard({
   service,
   setEditingService,
-  setDeletingService
+  setDeletingService,
+  setActivatingService
 }: ServiceCardProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -37,9 +39,8 @@ export default function ServiceCard({
   return (
     <div
       key={service._id}
-      className="group relative rounded-xl bg-jordy-blue-100 border-2 border-jordy-blue-200 p-4 shadow-md hover:shadow-xl duration-300"
+      className={`group relative rounded-xl bg-jordy-blue-100 border-2 border-jordy-blue-200 p-4 shadow-md hover:shadow-xl duration-300 ${!service.isActive && 'opacity-70'}`}
     >
-      {/* menú arriba derecha */}
       <div ref={menuRef} className="absolute top-3 right-3">
         <button
           type="button"
@@ -56,7 +57,6 @@ export default function ServiceCard({
           />
         </button>
 
-        {/* MENU smooth */}
         <div
           role="menu"
           className={[
@@ -67,35 +67,53 @@ export default function ServiceCard({
               : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
           ].join(" ")}
         >
-          <button
-            role="menuitem"
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              setEditingService(service);
-            }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-jordy-blue-800 hover:bg-jordy-blue-200 transition"
-          >
-            <Pencil className="w-4 h-4" />
-            Editar
-          </button>
+          {service.isActive ? (
+              <>
+                <button
+                  role="menuitem"
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setEditingService(service);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-jordy-blue-800 hover:bg-jordy-blue-200 transition"
+                >
+                  <Pencil className="w-4 h-4" />
+                  Editar
+                </button>
 
-          <button
-            role="menuitem"
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              setDeletingService(service);
-            }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-100 transition"
-          >
-            <Trash2 className="w-4 h-4" />
-            Eliminar
-          </button>
+              
+                <button
+                  role="menuitem"
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setDeletingService(service);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-100 transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar
+                </button>
+              </>
+            ) : (
+              <button
+                  role="menuitem"
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setActivatingService(service);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-green-600 hover:bg-green-100 transition"
+                >
+                  <RotateCcwKey className="w-4 h-4" />
+                  Activar
+              </button>
+            )}
+          
         </div>
       </div>
 
-      {/* contenido (padding-right para no chocar con el menú) */}
       <div className="pr-10">
         <div className="flex items-start justify-between gap-3">
           <h2 className="text-lg font-semibold text-jordy-blue-900">{service.name}</h2>

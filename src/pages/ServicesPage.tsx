@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Plus, Scissors } from "lucide-react";
 import { useServices } from "../hooks/useServices";
 import { ServiceForm } from "../components/services/ServiceForm";
@@ -11,14 +12,21 @@ export default function ServicesPage() {
     servicesQuery,
     createServiceMutation,
     updateServiceMutation,
-    deleteServiceMutation
+    deleteServiceMutation,
+    activateServiceMutation
   } = useServices();
 
   const [openCreate, setOpenCreate] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deletingService, setDeletingService] = useState<Service | null>(null);
+  const [activatingService, setActivatingService] = useState<Service | null>(null);
+
+  const [showInactive, setShowInactive] = useState(false);
 
   const { data: services, isLoading, error } = servicesQuery;
+
+  const activeServices = services?.filter(s => s.isActive) ?? [];
+  const inactiveServices = services?.filter(s => !s.isActive) ?? [];
 
   return (
     <div className="space-y-4">
@@ -55,11 +63,64 @@ export default function ServicesPage() {
         </p>
       )}
 
-      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-        {services?.map(service => (
-          <ServiceCard key={service._id} service={service} setEditingService={setEditingService} setDeletingService={setDeletingService}/>
-        ))}
+      <div className="space-y-2">
+        <h2 className="text-lg font-semibold text-jordy-blue-900">
+          Servicios activos
+        </h2>
+
+        {activeServices.length === 0 ? (
+          <p className="text-sm text-slate-400">No hay servicios activos.</p>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
+            {activeServices.map(service => (
+              <ServiceCard
+                key={service._id}
+                service={service}
+                setEditingService={setEditingService}
+                setDeletingService={setDeletingService}
+                setActivatingService={setActivatingService}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      {inactiveServices.length > 0 && (
+        <div className="space-y-2">
+          <button
+            onClick={() => setShowInactive(v => !v)}
+            className="flex items-center gap-2 text-sm font-medium text-jordy-blue-700 hover:text-jordy-blue-900"
+          >
+            <ChevronDown
+              className={`w-4 h-4 transition-transform duration-200 ${
+                showInactive ? "rotate-180" : ""
+              }`}
+            />
+            Servicios desactivados ({inactiveServices.length})
+          </button>
+          <div
+            className={`grid transition-all duration-500 ease-out ${
+              showInactive ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            }`}
+          >
+            <div className="overflow-hidden">
+              <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4 pt-1">
+                {inactiveServices.map(service => (
+                  <ServiceCard
+                    key={service._id}
+                    service={service}
+                    setEditingService={setEditingService}
+                    setDeletingService={setDeletingService}
+                    setActivatingService={setActivatingService}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
 
       <Modal
         open={openCreate}
@@ -133,6 +194,46 @@ export default function ServicesPage() {
                 disabled={deleteServiceMutation.isPending}
               >
                 {deleteServiceMutation.isPending ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </>
+        )}
+      </Modal>
+
+      <Modal
+        open={!!activatingService}
+        title="Activar servicio"
+        onClose={() => setActivatingService(null)}
+        zIndex={80}
+        maxWidthClassName="max-w-sm"
+      >
+        {activatingService && (
+          <>
+            <p className="mb-4 text-sm text-jordy-blue-800">
+              ¿Querés activar{" "}
+              <span className="font-bold text-jordy-blue-700">
+                {activatingService.name}
+              </span>
+              ?
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-3 py-1.5 text-sm rounded-lg text-jordy-blue-200 bg-jordy-blue-600 hover:bg-jordy-blue-700 duration-200"
+                onClick={() => setActivatingService(null)}
+              >
+                Cancelar
+              </button>
+
+              <button
+                className="px-3 py-1.5 text-sm rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-60 duration-200"
+                onClick={async () => {
+                  await activateServiceMutation.mutateAsync(activatingService._id);
+                  setActivatingService(null);
+                }}
+                disabled={activateServiceMutation.isPending}
+              >
+                {activateServiceMutation.isPending ? "Activando..." : "Activar"}
               </button>
             </div>
           </>
