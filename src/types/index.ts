@@ -47,6 +47,27 @@ export interface ProfessionalUserPayload {
   phone?: string;
 }
 
+export interface CreateProfessionalPayload {
+  name: string;
+  email: string;
+  phone: string;
+
+  // opcionales que ya soporta tu back (si los mandás)
+  color?: string;
+  allowOverlap?: boolean;
+  services?: string[];
+  workingHours?: WorkingHour[];
+  timeOff?: TimeOff[];
+  password?: string; // opcional (si no, vuelve tempPassword)
+}
+
+export interface CreateProfessionalResponse {
+  ok: boolean;
+  msg: string;
+  professional: Professional;
+  tempPassword?: string;
+}
+
 
 
 // APPOINTMENTS
